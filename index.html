@@ -1,0 +1,2369 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>شهابستان — شبیه‌ساز برخورد شهاب‌سنگ</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#0d0f11;
+    font-family:'Vazirmatn',Tahoma,sans-serif;font-weight:400;color:#c8ccd0;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+  #app{position:fixed;inset:0}
+  canvas{display:block}
+
+  #splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:18px;background:#0d0f11;
+    transition:opacity .8s ease, visibility .8s;}
+  #splash.hide{opacity:0;visibility:hidden}
+  .s-title{font-size:clamp(28px,5vw,44px);font-weight:700;color:#e2e6ea;letter-spacing:-.5px;}
+  .s-title small{display:block;font-size:clamp(12px,1.6vw,15px);font-weight:400;
+    color:#767c82;letter-spacing:.5px;margin-top:6px;}
+  .s-sub{font-size:13px;color:#767c82;font-weight:400}
+  .s-sub b{color:#a8b0b8;font-weight:500}
+  .s-bar{width:min(240px,60vw);height:2px;border-radius:1px;background:#1c1f23;overflow:hidden;margin-top:6px}
+  .s-bar i{display:block;height:100%;width:0;background:#5a6470;animation:load 1.8s ease forwards}
+  @keyframes load{to{width:100%}}
+
+  .panel{position:fixed;z-index:20;background:#14171a;
+    border:1px solid #24282d;border-radius:8px;
+    box-shadow:0 4px 20px rgba(0,0,0,.5);
+    padding:16px;overflow-y:auto;overflow-x:hidden;
+    scrollbar-width:thin;scrollbar-color:#3a4048 transparent;}
+  .panel::-webkit-scrollbar{width:6px}
+  .panel::-webkit-scrollbar-thumb{background:#3a4048;border-radius:3px}
+
+  #panel{top:14px;right:14px;width:310px;max-height:calc(100vh - 28px)}
+  #stats{top:14px;left:14px;width:300px;max-height:calc(100vh - 28px)}
+
+  h1{font-size:13px;font-weight:600;margin:0 0 2px;color:#d8dde2;line-height:1.5;}
+  .credit{font-size:11px;color:#5d6469;margin-bottom:16px;font-weight:400}
+  .credit b{color:#8a9299;font-weight:500}
+
+  .group{margin-bottom:12px}
+  .group label{display:flex;justify-content:space-between;align-items:center;
+    font-size:12px;color:#8a9299;margin-bottom:6px;font-weight:400}
+  .group label span{color:#b8c0c8;font-weight:500;font-size:11.5px;font-variant-numeric:tabular-nums;}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;
+    border-radius:2px;background:#24282d;outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;
+    border-radius:50%;background:#8a9299;border:none;cursor:grab;transition:background .15s;}
+  input[type=range]::-webkit-slider-thumb:hover{background:#b8c0c8}
+  input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;
+    background:#8a9299;border:none;cursor:grab}
+
+  select{width:100%;padding:7px 10px;border-radius:6px;font-size:12.5px;
+    background:#0d0f11;color:#c8ccd0;border:1px solid #24282d;
+    outline:none;cursor:pointer;font-family:'Vazirmatn',sans-serif;font-weight:400;
+    transition:border-color .15s;}
+  select:hover{border-color:#3a4048}
+  select:focus{border-color:#5a6470}
+
+  .btn{width:100%;padding:10px;margin-top:6px;border:1px solid #2d3238;
+    border-radius:6px;font-size:13px;font-weight:500;font-family:'Vazirmatn',sans-serif;
+    cursor:pointer;background:#1c2024;color:#d8dde2;
+    transition:background .15s,border-color .15s;}
+  .btn:hover{background:#24282d;border-color:#3a4048}
+  .btn:active{background:#181c20}
+  .btn.primary{background:#3a4550;border-color:#4a5560;color:#fff}
+  .btn.primary:hover{background:#46525e}
+  .btn.sec{font-size:12.5px;padding:8px}
+
+  .sec-title{font-size:10.5px;color:#5d6469;margin:16px 0 8px;
+    letter-spacing:.5px;padding-bottom:5px;font-weight:500;border-bottom:1px solid #1c1f23;}
+  .sec-title:first-of-type{margin-top:0}
+
+  .hint-text{font-size:10.5px;color:#5d6469;margin-top:4px;line-height:1.6;font-weight:400}
+
+  .stat-grid{display:grid;grid-template-columns:1fr;gap:1px;
+    background:#1c1f23;border:1px solid #1c1f23;border-radius:6px;
+    overflow:hidden;margin-bottom:14px;}
+  .stat-item{background:#14171a;padding:11px 12px;
+    display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .stat-item .lbl{font-size:11.5px;color:#767c82;font-weight:400}
+  .stat-item .val{font-size:14px;font-weight:600;color:#d8dde2;
+    direction:ltr;font-variant-numeric:tabular-nums;
+    font-family:'Vazirmatn',sans-serif;text-align:left;}
+  .stat-item .val sup{font-size:.7em;font-weight:500}
+  .stat-item .val.accent{color:#d4b07a}
+  .stat-item .val.dim{color:#a8b0b8}
+
+  .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+    padding:7px 0;border-bottom:1px solid #1c1f23;font-size:12px}
+  .row:last-child{border-bottom:none}
+  .row .k{color:#767c82;font-weight:400}
+  .row .v{color:#c8ccd0;font-weight:500;text-align:left;direction:ltr;font-size:12px;
+    font-variant-numeric:tabular-nums;}
+
+  .badge{display:block;text-align:center;font-size:11.5px;padding:7px 10px;
+    border-radius:5px;margin-top:12px;line-height:1.6;font-weight:500;
+    background:#181c20;color:#8a9299;border:1px solid #24282d;}
+  .badge.warn{color:#d4b07a;border-color:#3d3520;background:#1c1810}
+  .badge.danger{color:#d48484;border-color:#3d2020;background:#1c1010}
+  .badge.ok{color:#84b894;border-color:#1f3d28;background:#101c14}
+  .badge.water{color:#7ab8d4;border-color:#1f353d;background:#101a1c}
+  .badge.forest{color:#9ac47a;border-color:#2a3d1f;background:#141c10}
+  .badge.city{color:#c4b8a8;border-color:#3d352a;background:#1c1812}
+  .badge.fire{color:#e8a860;border-color:#3d2a15;background:#1c1408}
+
+  #hint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:20;
+    font-size:12px;color:#767c82;background:#14171a;padding:8px 18px;
+    border-radius:20px;border:1px solid #24282d;transition:opacity .5s;
+    white-space:nowrap;pointer-events:none;font-weight:400;}
+  #hint.hide{opacity:0}
+
+  #footer{position:fixed;bottom:8px;right:14px;z-index:19;
+    font-size:10.5px;color:#4a5057;letter-spacing:0;pointer-events:none;
+    white-space:nowrap;font-weight:400;}
+  #footer b{color:#767c82;font-weight:500}
+
+  .modal{position:fixed;inset:0;z-index:200;background:rgba(5,7,9,.85);
+    display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal.active{display:flex}
+  .modal-box{background:#14171a;border:1px solid #24282d;border-radius:10px;
+    padding:22px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;
+    box-shadow:0 20px 60px rgba(0,0,0,.7);}
+  .modal-box.wide{max-width:960px}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .modal-head h2{font-size:15px;font-weight:600;margin:0;color:#d8dde2}
+  .modal-close{background:none;border:none;color:#5d6469;font-size:22px;
+    cursor:pointer;padding:0 6px;line-height:1;font-family:inherit;transition:color .15s;}
+  .modal-close:hover{color:#c8ccd0}
+  .modal p{font-size:12.5px;color:#8a9299;line-height:1.9;margin:0 0 14px}
+  .modal .credit-big{font-size:13px;color:#b8c0c8;font-weight:500;
+    padding:12px 14px;background:#0d0f11;border-radius:6px;
+    border-right:2px solid #3a4550;margin-bottom:18px;line-height:1.8}
+  .modal .credit-big b{color:#e2e6ea;font-weight:600}
+  .game-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  #gameOverlay .modal-box{padding:16px}
+  .game-wrap{position:relative;background:#0a0c0e;border-radius:8px;
+    overflow:hidden;border:1px solid #1c1f23}
+  #gameCanvas{display:block;width:100%;height:auto;cursor:crosshair;background:#0a0c0e}
+  .game-bar{display:flex;justify-content:space-between;align-items:center;
+    padding:10px 4px 4px;gap:10px;font-size:12px;color:#8a9299}
+  .game-bar b{color:#d8dde2;font-weight:600}
+  .game-bar .btn{margin:0;padding:6px 16px;width:auto;font-size:12px}
+  .game-instructions{font-size:11.5px;color:#5d6469;
+    text-align:center;padding:8px 4px 2px;line-height:1.7}
+
+  @media (max-width:900px){
+    #panel{width:280px}
+    #stats{width:280px}
+  }
+  @media (max-width:720px){
+    #panel{width:calc(100vw - 28px);max-height:48vh;top:auto;bottom:14px;right:14px}
+    #stats{width:calc(100vw - 28px);max-height:34vh;top:14px;left:14px}
+    #footer{display:none}
+    #hint{bottom:auto;top:52vh;font-size:11px;padding:6px 14px}
+    .stat-item .val{font-size:13px}
+    .game-btns{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<div id="splash">
+  <div class="s-title">شهابستان<small>شبیه‌ساز برخورد شهاب‌سنگ</small></div>
+  <div class="s-sub">طراحی و پیاده‌سازی: <b>محمد حسین رضی و امیر عباس صفری</b></div>
+  <div class="s-bar"><i></i></div>
+</div>
+
+<div class="panel" id="panel">
+  <h1>شهابستان</h1>
+  <div class="credit">محمد حسین رضی و امیر عباس صفری</div>
+
+  <div class="sec-title">کیفیت گرافیک</div>
+  <div class="group">
+    <label>سطح کیفیت</label>
+    <select id="quality">
+      <option value="low">پایین — سریع</option>
+      <option value="medium">متوسط — متعادل</option>
+      <option value="high">بالا — بهترین جزئیات</option>
+    </select>
+    <div class="hint-text">تغییر سطح کیفیت صفحه را دوباره بارگذاری می‌کند</div>
+  </div>
+  <div class="group">
+    <label>شدت درخشش <span id="v-bloom">—</span></label>
+    <input type="range" id="bloomSlider" min="0" max="2" step="0.05" value="1">
+  </div>
+  <div class="group">
+    <label>چگالی ذرات <span id="v-particles">—</span></label>
+    <input type="range" id="particleSlider" min="0.3" max="2" step="0.05" value="1">
+  </div>
+
+  <div class="sec-title">شهاب‌سنگ</div>
+  <div class="group">
+    <label>جرم <span id="v-mass">—</span></label>
+    <input type="range" id="mass" min="3" max="19" step="0.02" value="10.3">
+  </div>
+  <div class="group">
+    <label>جنس</label>
+    <select id="mat">
+      <option value="iron">آهنی — چگالی ۷۸۰۰</option>
+      <option value="stonyiron">سنگی-آهنی — چگالی ۵۲۰۰</option>
+      <option value="stony" selected>سنگی کندریتی — چگالی ۳۴۰۰</option>
+      <option value="carbon">کربنی — چگالی ۲۲۰۰</option>
+      <option value="ice">یخی — چگالی ۹۳۰</option>
+    </select>
+  </div>
+  <div class="group">
+    <label>شکل</label>
+    <select id="shape">
+      <option value="sphere">کره‌ای</option>
+      <option value="ellipsoid">بیضی‌گون</option>
+      <option value="cube">مکعبی</option>
+      <option value="irregular" selected>نامنظم</option>
+      <option value="cone">مخروطی</option>
+      <option value="diamond">هشت‌وجهی</option>
+    </select>
+  </div>
+
+  <div class="sec-title">مسیر</div>
+  <div class="group">
+    <label>ارتفاع رهاسازی <span id="v-height">—</span></label>
+    <input type="range" id="height" min="0" max="6" step="0.02" value="4">
+  </div>
+  <div class="group">
+    <label>سرعت اولیه <span id="v-vel">—</span></label>
+    <input type="range" id="vel" min="0" max="70000" step="500" value="20000">
+  </div>
+  <div class="group">
+    <label>زاویه برخورد <span id="v-ang">—</span></label>
+    <input type="range" id="ang" min="15" max="90" step="1" value="45">
+  </div>
+
+  <div class="sec-title">زمین</div>
+  <div class="group">
+    <label>جنس خاک</label>
+    <select id="soil">
+      <option value="bedrock">سنگ بستر سخت</option>
+      <option value="limestone">سنگ آهکی</option>
+      <option value="clay" selected>رس</option>
+      <option value="sand">ماسه</option>
+      <option value="soil">خاک نرم</option>
+      <option value="ice">یخ</option>
+      <option value="water">آب دریا</option>
+      <option value="forest">جنگل انبوه</option>
+      <option value="city">شهر پرجمعیت</option>
+    </select>
+  </div>
+
+  <button class="btn primary" id="run">اجرای شبیه‌سازی</button>
+  <button class="btn sec" id="reset">بازنشانی</button>
+  <button class="btn sec" id="openAbout">درباره ما و مینی‌گیم‌ها</button>
+</div>
+
+<div class="panel" id="stats">
+  <h1>آمار آزمایش</h1>
+  <div class="credit">معادلات Collins–Melosh–Marcus</div>
+
+  <div id="statsBody">
+    <div class="stat-grid">
+      <div class="stat-item"><span class="lbl">ارتفاع رهاسازی</span><span class="val dim" id="o-height">—</span></div>
+      <div class="stat-item"><span class="lbl">سرعت برخورد</span><span class="val" id="o-vel">—</span></div>
+      <div class="stat-item"><span class="lbl">زاویه برخورد</span><span class="val" id="o-angle">—</span></div>
+      <div class="stat-item"><span class="lbl">عرض دهانه</span><span class="val accent" id="o-diam">—</span></div>
+      <div class="stat-item"><span class="lbl">طول دهانه</span><span class="val accent" id="o-len">—</span></div>
+      <div class="stat-item"><span class="lbl">عمق دهانه</span><span class="val accent" id="o-depth">—</span></div>
+      <div class="stat-item"><span class="lbl">قطر شهاب‌سنگ</span><span class="val dim" id="o-rock">—</span></div>
+      <div class="stat-item"><span class="lbl">انرژی برخورد</span><span class="val dim" id="o-energy">—</span></div>
+      <div class="stat-item"><span class="lbl">موج انفجاری</span><span class="val dim" id="o-blast">—</span></div>
+    </div>
+
+    <div class="sec-title">جزئیات</div>
+    <div class="row"><span class="k">جنس شهاب‌سنگ</span><span class="v" id="o-mat">—</span></div>
+    <div class="row"><span class="k">شکل شهاب‌سنگ</span><span class="v" id="o-shape">—</span></div>
+    <div class="row"><span class="k">جنس خاک</span><span class="v" id="o-soil">—</span></div>
+    <div id="statusBox"></div>
+  </div>
+</div>
+
+<div id="hint">پارامترها را تنظیم کنید و دکمه اجرا را بزنید</div>
+<div id="footer">شهابستان — محمد حسین رضی و امیر عباس صفری</div>
+
+<div class="modal" id="aboutModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>درباره شهابستان</h2>
+      <button class="modal-close" data-close="aboutModal">×</button>
+    </div>
+    <div class="credit-big">
+      طراحی و پیاده‌سازی:<br>
+      <b>محمد حسین رضی</b> و <b>امیر عباس صفری</b>
+    </div>
+    <p>
+      شهابستان یک شبیه‌ساز برخورد شهاب‌سنگ با استفاده از معادلات مقیاس‌بندی
+      Collins–Melosh–Marcus است. تمام محاسبات فیزیکی به‌صورت زنده بر اساس
+      جرم، سرعت، زاویه و جنس خاک هدف انجام می‌شود. زاویه برخورد بر طول دهانه،
+      جهت پرتاب مواد و مسیر سقوط اثر مستقیم دارد.
+    </p>
+    <p>
+      در حالت‌های «جنگل» و «شهر»، محیط اطراف با درختان و ساختمان‌های سه‌بعدی
+      ساخته می‌شود. درختان و ساختمان‌های نزدیک به مرکز برخورد در اثر موج انفجاری
+      آتش می‌گیرند و شعله‌ور می‌شوند.
+    </p>
+    <div class="sec-title">مینی‌گیم‌ها</div>
+    <p style="margin-bottom:12px">
+      دو بازی دوبعدی برای تفریح: با کلیک روی صفحه، شهاب‌سنگ را روی هدف‌ها رها کنید.
+    </p>
+    <div class="game-btns">
+      <button class="btn" id="openJets">بازی: زدن جت‌ها</button>
+      <button class="btn" id="openTanks">بازی: زدن تانک‌ها</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="gameOverlay">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <h2 id="gameTitle">بازی</h2>
+      <button class="modal-close" data-close="gameOverlay">×</button>
+    </div>
+    <div class="game-wrap">
+      <canvas id="gameCanvas" width="900" height="500"></canvas>
+    </div>
+    <div class="game-bar">
+      <span class="score">امتیاز: <b id="score">۰</b></span>
+      <span class="timer">زمان: <b id="timer">۳۰</b></span>
+      <button class="btn primary" id="startGameBtn">شروع</button>
+    </div>
+    <div class="game-instructions" id="gameInstr">
+      با کلیک روی آسمان، شهاب‌سنگ را رها کنید
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+/* ============================================================
+   کیفیت گرافیک
+   ============================================================ */
+const QUALITY_PRESETS = {
+  low: {
+    pixelRatio: 1, shadows: false, shadowMapSize: 1024,
+    starCount: 500, groundRings: 110, groundSegs: 130,
+    maxFire: 1800, maxDust: 1200, maxTrail: 400, maxWater: 1000,
+    bloomStrength: 0.20, bloomRadius: 0.35, bloomThreshold: 0.92,
+    antialias: false, baseParticles: 0.5,
+    treeCount: 200, buildingCount: 90,
+    maxFlames: 400,
+  },
+  medium: {
+    pixelRatio: Math.min(window.devicePixelRatio, 1.5), shadows: true, shadowMapSize: 1024,
+    starCount: 1200, groundRings: 160, groundSegs: 180,
+    maxFire: 3500, maxDust: 3500, maxTrail: 1000, maxWater: 2500,
+    bloomStrength: 0.30, bloomRadius: 0.5, bloomThreshold: 0.87,
+    antialias: true, baseParticles: 0.85,
+    treeCount: 450, buildingCount: 200,
+    maxFlames: 1200,
+  },
+  high: {
+    pixelRatio: Math.min(window.devicePixelRatio, 2), shadows: true, shadowMapSize: 2048,
+    starCount: 2200, groundRings: 210, groundSegs: 230,
+    maxFire: 5500, maxDust: 6500, maxTrail: 1800, maxWater: 4500,
+    bloomStrength: 0.42, bloomRadius: 0.6, bloomThreshold: 0.83,
+    antialias: true, baseParticles: 1.0,
+    treeCount: 750, buildingCount: 380,
+    maxFlames: 2500,
+  }
+};
+let currentQuality = localStorage.getItem('shahabestan-quality') || 'low';
+if (!QUALITY_PRESETS[currentQuality]) currentQuality = 'low';
+const Q = QUALITY_PRESETS[currentQuality];
+let bloomMult = parseFloat(localStorage.getItem('shahabestan-bloom') || '1');
+let particleMult = parseFloat(localStorage.getItem('shahabestan-particles') || '1');
+
+/* ============================================================
+   ابزارها
+   ============================================================ */
+const G0 = 9.80665;
+const fa = (n, d = 2) => Number(n).toLocaleString('fa-IR',
+  { minimumFractionDigits: d, maximumFractionDigits: d });
+
+function fmtE(n, unit = '', d = 2) {
+  if (!isFinite(n)) return '—';
+  const a = Math.abs(n);
+  if (a === 0) return '۰ ' + unit;
+  if (a >= 1e6 || a < 0.01) {
+    const e = Math.floor(Math.log10(a));
+    const m = n / Math.pow(10, e);
+    return `${fa(m, d)}×۱۰<sup>${e}</sup> ${unit}`;
+  }
+  return `${fa(n, a < 1 ? 3 : (a < 100 ? 2 : 0))} ${unit}`;
+}
+
+function hash3(x, y, z) {
+  let n = (x | 0) * 374761393 + (y | 0) * 668265263 + (z | 0) * 1274126177;
+  n = (n ^ (n >> 13)) * 1274126177;
+  return ((n ^ (n >> 16)) >>> 0) / 4294967295;
+}
+function noise3(x, y, z) {
+  const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+  const xf = x - xi, yf = y - yi, zf = z - zi;
+  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf), w = zf * zf * (3 - 2 * zf);
+  const l = (a, b, t) => a + (b - a) * t;
+  const c000 = hash3(xi, yi, zi), c100 = hash3(xi + 1, yi, zi);
+  const c010 = hash3(xi, yi + 1, zi), c110 = hash3(xi + 1, yi + 1, zi);
+  const c001 = hash3(xi, yi, zi + 1), c101 = hash3(xi + 1, yi, zi + 1);
+  const c011 = hash3(xi, yi + 1, zi + 1), c111 = hash3(xi + 1, yi + 1, zi + 1);
+  return l(l(l(c000, c100, u), l(c010, c110, u), v),
+           l(l(c001, c101, u), l(c011, c111, u), v), w);
+}
+function fbm(x, y, z, oct = 4) {
+  let s = 0, a = 0.5, f = 1;
+  for (let i = 0; i < oct; i++) { s += a * noise3(x * f, y * f, z * f); f *= 2; a *= 0.5; }
+  return s;
+}
+
+function groundHeightAt(x, z) {
+  const r = Math.sqrt(x * x + z * z);
+  const fade = Math.min(1, r / 250);
+  return (fbm(x * 0.0025, 0.5, z * 0.0025, 4) - 0.5) * 30 * fade
+       + (fbm(x * 0.011, 3.1, z * 0.011, 3) - 0.5) * 4 * fade;
+}
+
+/* ============================================================
+   مواد
+   ============================================================ */
+const MATS = {
+  iron:      { name: 'آهنی',       density: 7800, color: 0x9aa2ac, metalness: .95, roughness: .35, emis: 0xff5a1e },
+  stonyiron: { name: 'سنگی–آهنی',  density: 5200, color: 0x8b7d70, metalness: .55, roughness: .60, emis: 0xff5a1e },
+  stony:     { name: 'سنگی',       density: 3400, color: 0x6d6358, metalness: .05, roughness: .96, emis: 0xff6a20 },
+  carbon:    { name: 'کربنی',      density: 2200, color: 0x33302c, metalness: .10, roughness: .92, emis: 0xff7a30 },
+  ice:       { name: 'یخی',        density: 930,  color: 0xbfe6ff, metalness: .00, roughness: .15, emis: 0x66ccff },
+};
+const SOILS = {
+  bedrock:   { name: 'سنگ بستر', density: 2700, color: 0x8a8478, rough: 1.0 },
+  limestone: { name: 'سنگ آهکی', density: 2500, color: 0xa79b84, rough: 1.0 },
+  clay:      { name: 'رس',       density: 1800, color: 0x9c7b58, rough: 1.0 },
+  sand:      { name: 'ماسه',     density: 1600, color: 0xc4aa7c, rough: 1.0 },
+  soil:      { name: 'خاک نرم',  density: 1500, color: 0x6d5c40, rough: 1.0 },
+  ice:       { name: 'یخ',       density: 900,  color: 0xd6ecff, rough: .35 },
+  water:     { name: 'آب',       density: 1000, color: 0x2a6ea8, rough: .12 },
+  forest:    { name: 'جنگل',     density: 1300, color: 0x4a5a2e, rough: 1.0, scenery: 'forest' },
+  city:      { name: 'شهر',      density: 2000, color: 0x5a5a58, rough: 1.0, scenery: 'city' },
+};
+const SHAPES = {
+  sphere:    { name: 'کره‌ای',    factor: 1.00, depthMul: 1.00 },
+  ellipsoid: { name: 'بیضی‌گون',  factor: 0.98, depthMul: 1.02 },
+  cube:      { name: 'مکعبی',     factor: 0.94, depthMul: 0.88 },
+  irregular: { name: 'نامنظم',    factor: 1.00, depthMul: 1.00 },
+  cone:      { name: 'مخروطی',    factor: 1.04, depthMul: 1.42 },
+  diamond:   { name: 'هشت‌وجهی',  factor: 1.06, depthMul: 1.18 },
+};
+
+function computePhysics(p) {
+  const rhoA = MATS[p.mat].density;
+  const rhoT = SOILS[p.soil].density;
+  const mass = p.mass;
+  const vol = mass / rhoA;
+  const Ra = Math.cbrt(3 * vol / (4 * Math.PI));
+  const L = 2 * Ra;
+  const v = Math.max(1, Math.sqrt(p.v0 * p.v0 + 2 * G0 * p.height));
+  const E = 0.5 * mass * v * v;
+  const theta = p.angle * Math.PI / 180;
+  const sinT = Math.max(0.03, Math.sin(theta));
+  const sh = SHAPES[p.shape];
+
+  let Dtc = 1.161 * Math.cbrt(rhoA / rhoT) * Math.pow(L, 0.78)
+    * Math.pow(v, 0.44) * Math.pow(G0, -0.22) * Math.cbrt(sinT) * sh.factor;
+  Dtc = Math.max(Dtc, 0.02);
+
+  const Df = Dtc < 2500 ? 1.25 * Dtc : 1.17 * Math.pow(Dtc, 1.13) / Math.pow(2500, 0.13);
+  const depth = Df * (Df < 2500 ? 0.20 : 0.13) * sh.depthMul;
+  const width = Df * 1.12;
+
+  const deg = p.angle;
+  let elongation = 1;
+  if (deg < 45) {
+    elongation = 1 + Math.pow((45 - deg) / 45, 1.2) * 1.1;
+  }
+  const craterLength = width * elongation;
+
+  /* شعاع تخریب حرارتی (شعاع سوختن) */
+  const Y = E / 4.184e15;
+  const cY = Math.cbrt(Math.max(Y, 1e-15));
+  const R_thermal = 8000 * cY;
+  const R_burn = 4000 * cY;
+
+  return { rhoA, rhoT, mass, Ra, L, v, E, Dtc, Df, depth, width,
+    elongation, craterLength, R_thermal, R_burn, thetaRad: theta,
+    thetaDeg: p.angle, shape: p.shape, mat: p.mat, soil: p.soil,
+    height: p.height, v0: p.v0 };
+}
+
+/* ============================================================
+   صحنه
+   ============================================================ */
+const app = document.getElementById('app');
+const renderer = new THREE.WebGLRenderer({
+  antialias: Q.antialias, powerPreference: 'high-performance'
+});
+renderer.setPixelRatio(Q.pixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = Q.shadows;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+app.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(52, innerWidth / innerHeight, 0.5, 20000);
+camera.position.set(430, 330, 640);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.target.set(0, 30, 0);
+controls.minDistance = 40;
+controls.maxDistance = 6000;
+controls.maxPolarAngle = Math.PI * 0.495;
+controls.enablePan = false;
+
+scene.add(new THREE.Mesh(new THREE.SphereGeometry(9000, 48, 32), new THREE.ShaderMaterial({
+  side: THREE.BackSide, depthWrite: false,
+  uniforms: {
+    cTop: { value: new THREE.Color(0x050810) },
+    cMid: { value: new THREE.Color(0x0f1a2e) },
+    cBot: { value: new THREE.Color(0x28303e) },
+  },
+  vertexShader: `varying vec3 vP; void main(){ vP=position;
+    gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+  fragmentShader: `
+    uniform vec3 cTop; uniform vec3 cMid; uniform vec3 cBot;
+    varying vec3 vP;
+    void main(){
+      float h = normalize(vP).y;
+      vec3 c = h > 0.06
+        ? mix(cMid, cTop, clamp((h-0.06)/0.94,0.0,1.0))
+        : mix(cBot, cMid, clamp((h+0.3)/0.36,0.0,1.0));
+      gl_FragColor = vec4(c,1.0);
+    }`
+})));
+
+(function stars() {
+  const N = Q.starCount;
+  const pos = new Float32Array(N * 3), col = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    const r = 6000 + Math.random() * 1800;
+    const t = Math.random() * Math.PI * 2;
+    const ph = Math.acos(Math.random() * 0.98);
+    pos[i*3]   = r * Math.sin(ph) * Math.cos(t);
+    pos[i*3+1] = r * Math.cos(ph) + 400;
+    pos[i*3+2] = r * Math.sin(ph) * Math.sin(t);
+    const b = 0.5 + Math.random() * 0.4;
+    col[i*3] = b; col[i*3+1] = b * (0.9 + Math.random()*0.1); col[i*3+2] = b;
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  scene.add(new THREE.Points(g, new THREE.PointsMaterial({
+    size: 10, sizeAttenuation: true, vertexColors: true,
+    transparent: true, opacity: 0.85, depthWrite: false,
+    blending: THREE.AdditiveBlending, map: glowTexture(), fog: false
+  })));
+})();
+
+scene.add(new THREE.HemisphereLight(0x8fb6ff, 0x2a2014, 0.55));
+const sun = new THREE.DirectionalLight(0xffe4bc, 2.4);
+sun.position.set(-750, 1000, 480);
+if (Q.shadows) {
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(Q.shadowMapSize, Q.shadowMapSize);
+  const SD = 1400;
+  Object.assign(sun.shadow.camera, { left: -SD, right: SD, top: SD, bottom: -SD, near: 200, far: 4000 });
+  sun.shadow.bias = -0.0009;
+  sun.shadow.normalBias = 0.6;
+}
+scene.add(sun);
+scene.add(new THREE.AmbientLight(0x2a3a5a, 0.5));
+
+function glowTexture() {
+  const s = 128, c = document.createElement('canvas');
+  c.width = c.height = s;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.25, 'rgba(255,245,215,0.85)');
+  g.addColorStop(0.55, 'rgba(255,150,60,0.35)');
+  g.addColorStop(1, 'rgba(255,90,0,0)');
+  x.fillStyle = g; x.fillRect(0, 0, s, s);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+function noiseTexture(size = 128) {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  const img = ctx.createImageData(size, size);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const i = (y * size + x) * 4;
+      const n = fbm(x * 0.055, y * 0.055, 3.7, 4);
+      const v = 150 + n * 190;
+      img.data[i] = img.data[i+1] = img.data[i+2] = Math.max(0, Math.min(255, v));
+      img.data[i+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(22, 22);
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const GROUND_TEX = noiseTexture(128);
+
+/* ============================================================
+   زمین
+   ============================================================ */
+const GR = 2500, RINGS = Q.groundRings, SEGS = Q.groundSegs;
+const VCOUNT = (RINGS + 1) * (SEGS + 1);
+
+const groundGeo = new THREE.BufferGeometry();
+const gPos  = new Float32Array(VCOUNT * 3);
+const gCol  = new Float32Array(VCOUNT * 3);
+const gUV   = new Float32Array(VCOUNT * 2);
+const gBaseY = new Float32Array(VCOUNT);
+const gBaseCol = new Float32Array(VCOUNT * 3);
+const gCraterCol = new Float32Array(VCOUNT * 3);
+const gRadius = new Float32Array(VCOUNT);
+const gX = new Float32Array(VCOUNT);
+const gZ = new Float32Array(VCOUNT);
+
+(function buildGround() {
+  const idx = new Uint32Array(RINGS * SEGS * 6);
+  let p = 0;
+  for (let i = 0; i <= RINGS; i++) {
+    const t = i / RINGS;
+    const r = GR * Math.pow(t, 2.0);
+    for (let j = 0; j <= SEGS; j++) {
+      const a = (j / SEGS) * Math.PI * 2;
+      const k = i * (SEGS + 1) + j;
+      const x = r * Math.cos(a), z = r * Math.sin(a);
+      const fade = Math.min(1, r / 250);
+      const y = (fbm(x * 0.0025, 0.5, z * 0.0025, 4) - 0.5) * 30 * fade
+              + (fbm(x * 0.011, 3.1, z * 0.011, 3) - 0.5) * 4 * fade;
+      gPos[k*3] = x; gPos[k*3+1] = y; gPos[k*3+2] = z;
+      gBaseY[k] = y;
+      gRadius[k] = r;
+      gX[k] = x; gZ[k] = z;
+      gUV[k*2] = x / GR * 0.5 + 0.5;
+      gUV[k*2+1] = z / GR * 0.5 + 0.5;
+    }
+  }
+  for (let i = 0; i < RINGS; i++) {
+    for (let j = 0; j < SEGS; j++) {
+      const A = i * (SEGS + 1) + j, B = A + 1;
+      const C = A + (SEGS + 1), D = C + 1;
+      idx[p++] = A; idx[p++] = B; idx[p++] = C;
+      idx[p++] = B; idx[p++] = D; idx[p++] = C;
+    }
+  }
+  groundGeo.setAttribute('position', new THREE.BufferAttribute(gPos, 3));
+  groundGeo.setAttribute('color', new THREE.BufferAttribute(gCol, 3));
+  groundGeo.setAttribute('uv', new THREE.BufferAttribute(gUV, 2));
+  groundGeo.setIndex(new THREE.BufferAttribute(idx, 1));
+  groundGeo.computeVertexNormals();
+})();
+
+const groundMat = new THREE.MeshStandardMaterial({
+  vertexColors: true, map: GROUND_TEX, roughness: 1.0, metalness: 0.0,
+  color: 0xffffff,
+});
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.receiveShadow = Q.shadows;
+scene.add(ground);
+
+let currentSoil = 'clay';
+function paintGround(soilKey) {
+  const base = new THREE.Color(SOILS[soilKey].color);
+  const colAttr = groundGeo.attributes.color;
+  for (let k = 0; k < VCOUNT; k++) {
+    const n = fbm(gPos[k*3] * 0.02, 1.7, gPos[k*3+2] * 0.02, 3) - 0.5;
+    const shade = 0.82 + n * 0.5;
+    const c = base.clone().multiplyScalar(shade);
+    gCol[k*3] = c.r; gCol[k*3+1] = c.g; gCol[k*3+2] = c.b;
+    gBaseCol[k*3] = c.r; gBaseCol[k*3+1] = c.g; gBaseCol[k*3+2] = c.b;
+  }
+  colAttr.needsUpdate = true;
+  groundMat.color.set(SOILS[soilKey].color).lerp(new THREE.Color(0xffffff), 0.25);
+  groundMat.roughness = SOILS[soilKey].rough;
+  groundMat.metalness = soilKey === 'water' ? 0.25 : 0.0;
+  if (soilKey === 'water' || soilKey === 'ice') groundMat.roughness = 0.15;
+}
+paintGround(currentSoil);
+
+/* ============================================================
+   ذرات
+   ============================================================ */
+const pVert = `
+attribute float aSize;
+attribute float aAlpha;
+attribute vec3 aColor;
+uniform float uScale;
+varying float vAlpha;
+varying vec3 vColor;
+void main(){
+  vAlpha = aAlpha;
+  vColor = aColor;
+  vec4 mv = modelViewMatrix * vec4(position,1.0);
+  gl_PointSize = max(1.0, aSize * uScale / max(0.5, -mv.z));
+  gl_Position = projectionMatrix * mv;
+}`;
+const pFrag = `
+varying float vAlpha;
+varying vec3 vColor;
+void main(){
+  vec2 c = gl_PointCoord - vec2(0.5);
+  float d = length(c);
+  if(d > 0.5) discard;
+  float a = smoothstep(0.5, 0.0, d);
+  a = pow(a, 1.7);
+  gl_FragColor = vec4(vColor, a * vAlpha);
+  #include <tonemapping_fragment>
+  #include <colorspace_fragment>
+}`;
+
+class ParticleSystem {
+  constructor(max, blending, buoyancy = 0) {
+    this.max = max; this.count = 0;
+    this.buoyancy = buoyancy;
+    this.pos   = new Float32Array(max * 3);
+    this.col   = new Float32Array(max * 3);
+    this.size  = new Float32Array(max);
+    this.alpha = new Float32Array(max);
+    this.vel   = new Float32Array(max * 3);
+    this.life  = new Float32Array(max);
+    this.maxLife = new Float32Array(max);
+    this.drag  = new Float32Array(max);
+    this.grav  = new Float32Array(max);
+    this.flickerPhase = new Float32Array(max);
+    this.flickerFreq  = new Float32Array(max);
+    this.baseSize = new Float32Array(max);
+
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(this.pos, 3).setUsage(THREE.DynamicDrawUsage));
+    g.setAttribute('aColor',   new THREE.BufferAttribute(this.col, 3).setUsage(THREE.DynamicDrawUsage));
+    g.setAttribute('aSize',    new THREE.BufferAttribute(this.size, 1).setUsage(THREE.DynamicDrawUsage));
+    g.setAttribute('aAlpha',   new THREE.BufferAttribute(this.alpha, 1).setUsage(THREE.DynamicDrawUsage));
+    g.setDrawRange(0, 0);
+    this.geo = g;
+
+    this.mat = new THREE.ShaderMaterial({
+      uniforms: { uScale: { value: 900 } },
+      vertexShader: pVert, fragmentShader: pFrag,
+      transparent: true, depthWrite: false,
+      blending: blending, toneMapped: true,
+    });
+    this.points = new THREE.Points(g, this.mat);
+    this.points.frustumCulled = false;
+    scene.add(this.points);
+  }
+  spawn(x, y, z, vx, vy, vz, size, life, color, drag = 0.6, grav = 30, flicker = false) {
+    const i = this.count;
+    if (i >= this.max) return;
+    this.pos[i*3] = x; this.pos[i*3+1] = y; this.pos[i*3+2] = z;
+    this.vel[i*3] = vx; this.vel[i*3+1] = vy; this.vel[i*3+2] = vz;
+    this.size[i] = size;
+    this.baseSize[i] = size;
+    this.life[i] = life; this.maxLife[i] = life;
+    this.col[i*3] = color.r; this.col[i*3+1] = color.g; this.col[i*3+2] = color.b;
+    this.drag[i] = drag; this.grav[i] = grav;
+    this.flickerPhase[i] = Math.random() * Math.PI * 2;
+    this.flickerFreq[i] = flicker ? (8 + Math.random() * 12) : 0;
+    this.count++;
+  }
+  update(dt, time) {
+    let n = 0;
+    for (let i = 0; i < this.count; i++) {
+      this.life[i] -= dt;
+      if (this.life[i] <= 0) continue;
+      const d = Math.pow(this.drag[i], dt);
+      this.vel[i*3]   *= d;
+      this.vel[i*3+1] = this.vel[i*3+1] * d - this.grav[i] * dt;
+      this.vel[i*3+2] *= d;
+      this.pos[i*3]   += this.vel[i*3]   * dt;
+      this.pos[i*3+1] += this.vel[i*3+1] * dt;
+      this.pos[i*3+2] += this.vel[i*3+2] * dt;
+      if (this.pos[i*3+1] < 0.5) {
+        this.pos[i*3+1] = 0.5;
+        this.vel[i*3+1] *= -0.22;
+        this.vel[i*3] *= 0.55; this.vel[i*3+2] *= 0.55;
+      }
+      const t = this.life[i] / this.maxLife[i];
+      this.alpha[i] = Math.pow(t, 0.75);
+      const dark = 0.35 + 0.65 * t;
+
+      // فلیکر شعله
+      if (this.flickerFreq[i] > 0) {
+        const ph = this.flickerPhase[i] + time * this.flickerFreq[i];
+        const fl = 0.7 + 0.3 * Math.sin(ph) + 0.15 * Math.sin(ph * 2.7);
+        this.size[i] = this.baseSize[i] * fl * (0.55 + 0.55 * t);
+      }
+
+      if (n !== i) {
+        for (let c = 0; c < 3; c++) {
+          this.pos[n*3+c] = this.pos[i*3+c];
+          this.vel[n*3+c] = this.vel[i*3+c];
+          this.col[n*3+c] = this.col[i*3+c] * dark;
+        }
+        this.size[n] = this.size[i];
+        this.baseSize[n] = this.baseSize[i];
+        this.flickerPhase[n] = this.flickerPhase[i];
+        this.flickerFreq[n] = this.flickerFreq[i];
+        this.alpha[n] = this.alpha[i];
+        this.life[n] = this.life[i]; this.maxLife[n] = this.maxLife[i];
+        this.drag[n] = this.drag[i]; this.grav[n] = this.grav[i];
+      } else {
+        this.col[i*3] *= dark; this.col[i*3+1] *= dark; this.col[i*3+2] *= dark;
+      }
+      n++;
+    }
+    this.count = n;
+    this.geo.setDrawRange(0, n);
+    this.geo.attributes.position.needsUpdate = true;
+    this.geo.attributes.aColor.needsUpdate = true;
+    this.geo.attributes.aSize.needsUpdate = true;
+    this.geo.attributes.aAlpha.needsUpdate = true;
+  }
+  clear() { this.count = 0; this.geo.setDrawRange(0, 0); }
+}
+
+const firePS  = new ParticleSystem(Q.maxFire, THREE.AdditiveBlending);
+const dustPS  = new ParticleSystem(Q.maxDust, THREE.NormalBlending);
+const trailPS = new ParticleSystem(Q.maxTrail, THREE.AdditiveBlending);
+const waterPS = new ParticleSystem(Q.maxWater, THREE.NormalBlending);
+const smokePS = new ParticleSystem(Q.maxDust, THREE.NormalBlending);
+/* شعله‌های آتش روی درخت‌ها و ساختمان‌ها */
+const flamePS = new ParticleSystem(Q.maxFlames, THREE.AdditiveBlending);
+
+const GLOW_TEX = glowTexture();
+
+const flashSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: GLOW_TEX, color: 0xfff0cc, transparent: true,
+  blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0,
+}));
+flashSprite.scale.set(1, 1, 1);
+flashSprite.visible = false;
+scene.add(flashSprite);
+
+const impactLight = new THREE.PointLight(0xffb060, 0, 4000, 2);
+impactLight.position.set(0, 30, 0);
+scene.add(impactLight);
+
+const shockGeo = new THREE.RingGeometry(0.86, 1.0, 160);
+shockGeo.rotateX(-Math.PI / 2);
+const shockMat = new THREE.MeshBasicMaterial({
+  color: 0xffd9a0, transparent: true, opacity: 0,
+  side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false,
+});
+const shockRing = new THREE.Mesh(shockGeo, shockMat);
+shockRing.position.y = 1.2;
+shockRing.visible = false;
+scene.add(shockRing);
+
+const shockGeo2 = new THREE.RingGeometry(0.9, 1.0, 160);
+shockGeo2.rotateX(-Math.PI / 2);
+const shockMat2 = new THREE.MeshBasicMaterial({
+  color: 0xa08060, transparent: true, opacity: 0,
+  side: THREE.DoubleSide, depthWrite: false,
+});
+const shockRing2 = new THREE.Mesh(shockGeo2, shockMat2);
+shockRing2.position.y = 2.5;
+shockRing2.visible = false;
+scene.add(shockRing2);
+
+const ripples = [];
+for (let i = 0; i < 6; i++) {
+  const rg = new THREE.RingGeometry(0.92, 1.0, 128);
+  rg.rotateX(-Math.PI / 2);
+  const rm = new THREE.MeshBasicMaterial({
+    color: 0x9ed4ff, transparent: true, opacity: 0,
+    side: THREE.DoubleSide, depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const r = new THREE.Mesh(rg, rm);
+  r.position.y = 1.5 + i * 0.15;
+  r.visible = false;
+  scene.add(r);
+  ripples.push({ mesh: r, mat: rm, delay: i * 0.12 });
+}
+function clearRipples() {
+  ripples.forEach(r => { r.mesh.visible = false; r.mat.opacity = 0; });
+}
+
+/* ============================================================
+   Scenery — درخت‌ها و ساختمان‌های قابل سوختن
+   ============================================================ */
+let sceneryGroup = null;
+const sceneryData = [];
+/* اجسام در حال سوختن: { x, z, y, type:'tree'|'building', intensity, life, smokeTimer } */
+const burningObjects = [];
+
+function clearScenery() {
+  if (sceneryGroup) {
+    scene.remove(sceneryGroup);
+    sceneryGroup.traverse(o => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) {
+        if (Array.isArray(o.material)) o.material.forEach(m => m.dispose());
+        else o.material.dispose();
+      }
+    });
+    sceneryGroup = null;
+  }
+  sceneryData.length = 0;
+  burningObjects.length = 0;
+  flamePS.clear();
+  smokePS.clear();
+}
+
+function paintGeom(geo, color) {
+  const count = geo.attributes.position.count;
+  const colors = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    colors[i*3] = color.r; colors[i*3+1] = color.g; colors[i*3+2] = color.b;
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+}
+
+function makeTreeGeometry(variant) {
+  const parts = [];
+  let trunkH, trunkR;
+  let foliage;
+
+  if (variant === 0) {
+    trunkH = 2.4; trunkR = 0.28;
+    foliage = [
+      { type: 'cone', r: 1.7, h: 3.0, y: trunkH },
+      { type: 'cone', r: 1.25, h: 2.4, y: trunkH + 1.6 },
+      { type: 'cone', r: 0.8, h: 1.9, y: trunkH + 3.0 },
+    ];
+  } else if (variant === 1) {
+    trunkH = 1.9; trunkR = 0.35;
+    foliage = [
+      { type: 'sphere', r: 2.3, y: trunkH + 1.4 },
+      { type: 'sphere', r: 1.6, y: trunkH + 2.7 },
+      { type: 'sphere', r: 1.2, y: trunkH + 0.6, ox: 0.9 },
+    ];
+  } else {
+    trunkH = 3.2; trunkR = 0.22;
+    foliage = [
+      { type: 'cone', r: 1.3, h: 3.5, y: trunkH },
+      { type: 'cone', r: 0.95, h: 2.6, y: trunkH + 2.0 },
+    ];
+  }
+
+  const trunk = new THREE.CylinderGeometry(trunkR * 0.85, trunkR, trunkH, 6);
+  trunk.translate(0, trunkH / 2, 0);
+  paintGeom(trunk, new THREE.Color(0x3a2418));
+  parts.push(trunk);
+
+  const baseGreen = new THREE.Color(0x1f3a12);
+  foliage.forEach(l => {
+    let g;
+    if (l.type === 'cone') {
+      g = new THREE.ConeGeometry(l.r, l.h, 7);
+      g.translate(l.ox || 0, l.y + l.h / 2, 0);
+    } else {
+      g = new THREE.SphereGeometry(l.r, 8, 6);
+      g.translate(l.ox || 0, l.y, 0);
+    }
+    const tint = baseGreen.clone().offsetHSL(
+      (Math.random() - 0.5) * 0.05,
+      (Math.random() - 0.5) * 0.15,
+      (Math.random() - 0.5) * 0.10
+    );
+    paintGeom(g, tint);
+    parts.push(g);
+  });
+
+  return mergeGeometries(parts, false);
+}
+
+function buildForest() {
+  sceneryGroup = new THREE.Group();
+  scene.add(sceneryGroup);
+
+  const totalCount = Q.treeCount;
+  const variants = 3;
+  const perVariant = Math.ceil(totalCount / variants);
+
+  const treeMat = new THREE.MeshStandardMaterial({
+    vertexColors: true, roughness: 0.92, metalness: 0.0,
+    flatShading: true,
+  });
+
+  const minR = 260, maxR = 2200;
+
+  for (let vi = 0; vi < variants; vi++) {
+    const geo = makeTreeGeometry(vi);
+    const inst = new THREE.InstancedMesh(geo, treeMat, perVariant);
+    inst.castShadow = Q.shadows;
+    inst.receiveShadow = Q.shadows;
+    inst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
+    const dummy = new THREE.Object3D();
+    let placed = 0, attempts = 0;
+    while (placed < perVariant && attempts < perVariant * 25) {
+      attempts++;
+      const ang = Math.random() * Math.PI * 2;
+      const r = minR + Math.pow(Math.random(), 0.75) * (maxR - minR);
+      const x = Math.cos(ang) * r;
+      const z = Math.sin(ang) * r;
+      const y = groundHeightAt(x, z);
+      const s = 3.5 + Math.random() * 3.0;
+      dummy.position.set(x, y, z);
+      dummy.rotation.y = Math.random() * Math.PI * 2;
+      const sy = s * (0.85 + Math.random() * 0.35);
+      dummy.scale.set(s, sy, s);
+      dummy.updateMatrix();
+      inst.setMatrixAt(placed, dummy.matrix);
+      sceneryData.push({
+        mesh: inst, index: placed, x, z, y,
+        type: 'tree', height: sy * 2.5,
+        originalMatrix: dummy.matrix.clone(),
+      });
+      placed++;
+    }
+    inst.count = placed;
+    inst.instanceMatrix.needsUpdate = true;
+    inst.computeBoundingSphere();
+    sceneryGroup.add(inst);
+  }
+}
+
+function makeWindowTexture(baseColor, lightColor, burned = false) {
+  const size = 128;
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d');
+
+  ctx.fillStyle = baseColor;
+  ctx.fillRect(0, 0, size, size);
+
+  const cols = 4, rows = 4;
+  const padX = size / cols, padY = size / rows;
+  for (let r = 0; r < rows; r++) {
+    for (let cc = 0; cc < cols; cc++) {
+      const wx = cc * padX + padX * 0.18;
+      const wy = r * padY + padY * 0.18;
+      const ww = padX * 0.64;
+      const wh = padY * 0.64;
+
+      if (burned) {
+        ctx.fillStyle = '#0a0a0a';
+      } else {
+        const lit = Math.random() < 0.22;
+        ctx.fillStyle = lit ? lightColor : '#20252e';
+      }
+      ctx.fillRect(wx, wy, ww, wh);
+
+      ctx.strokeStyle = burned ? '#050505' : '#0d1015';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(wx, wy, ww, wh);
+    }
+  }
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return tex;
+}
+
+const BUILDING_TEMPLATES = [
+  { w: 14, h: 55, d: 14, repeatU: 2, repeatV: 8, base: '#6a6a68', light: '#fff2b8', dark: '#1a1a18' },
+  { w: 20, h: 32, d: 20, repeatU: 3, repeatV: 5, base: '#7a7a72', light: '#ffe8a8', dark: '#1c1c1a' },
+  { w: 12, h: 78, d: 12, repeatU: 2, repeatV: 12, base: '#5a5a60', light: '#e8f2ff', dark: '#15151a' },
+  { w: 28, h: 22, d: 24, repeatU: 4, repeatV: 3, base: '#8a8a80', light: '#fff0b0', dark: '#1f1f1c' },
+  { w: 16, h: 42, d: 16, repeatU: 2, repeatV: 6, base: '#6a6a5e', light: '#ffe0a0', dark: '#1a1a16' },
+];
+
+function buildCity() {
+  sceneryGroup = new THREE.Group();
+  scene.add(sceneryGroup);
+
+  const totalCount = Q.buildingCount;
+  const perTemplate = Math.ceil(totalCount / BUILDING_TEMPLATES.length);
+  const minR = 280, maxR = 2200;
+  const gridSize = 55;
+
+  BUILDING_TEMPLATES.forEach((tpl, ti) => {
+    const geo = new THREE.BoxGeometry(tpl.w, tpl.h, tpl.d);
+    geo.translate(0, tpl.h / 2, 0);
+
+    const tex = makeWindowTexture(tpl.base, tpl.light, false);
+    tex.repeat.set(tpl.repeatU, tpl.repeatV);
+
+    const mat = new THREE.MeshStandardMaterial({
+      map: tex, color: 0xffffff,
+      roughness: 0.85, metalness: 0.05,
+    });
+
+    /* نسخه سوخته */
+    const burnedTex = makeWindowTexture(tpl.dark, '#000', true);
+    burnedTex.repeat.set(tpl.repeatU, tpl.repeatV);
+    const burnedMat = new THREE.MeshStandardMaterial({
+      map: burnedTex, color: 0x555555,
+      roughness: 0.95, metalness: 0.0,
+    });
+
+    const inst = new THREE.InstancedMesh(geo, mat, perTemplate);
+    inst.castShadow = Q.shadows;
+    inst.receiveShadow = Q.shadows;
+    inst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
+    const dummy = new THREE.Object3D();
+    let placed = 0, attempts = 0;
+    const localItems = [];
+
+    while (placed < perTemplate && attempts < perTemplate * 30) {
+      attempts++;
+      const gx = Math.floor((Math.random() - 0.5) * (maxR * 2 / gridSize)) * gridSize;
+      const gz = Math.floor((Math.random() - 0.5) * (maxR * 2 / gridSize)) * gridSize;
+      const jx = (Math.random() - 0.5) * gridSize * 0.55;
+      const jz = (Math.random() - 0.5) * gridSize * 0.55;
+      const x = gx + jx;
+      const z = gz + jz;
+      const r = Math.sqrt(x * x + z * z);
+      if (r < minR || r > maxR) continue;
+
+      const y = groundHeightAt(x, z);
+      const sc = 0.9 + Math.random() * 0.35;
+      const sy = sc * (0.9 + Math.random() * 0.3);
+      dummy.position.set(x, y, z);
+      dummy.rotation.y = Math.floor(Math.random() * 4) * Math.PI / 2;
+      dummy.scale.set(sc, sy, sc);
+      dummy.updateMatrix();
+      inst.setMatrixAt(placed, dummy.matrix);
+
+      const item = {
+        mesh: inst, index: placed, x, z, y,
+        type: 'building',
+        height: tpl.h * sy,
+        burnedMat,
+        originalMat: mat,
+        originalMatrix: dummy.matrix.clone(),
+        templateIdx: ti,
+      };
+      sceneryData.push(item);
+      localItems.push(item);
+      placed++;
+    }
+
+    inst.count = placed;
+    inst.instanceMatrix.needsUpdate = true;
+    inst.computeBoundingSphere();
+    sceneryGroup.add(inst);
+    /* ذخیره برای تعویض متریال */
+    inst.userData.originalMat = mat;
+    inst.userData.burnedMat = burnedMat;
+  });
+}
+
+/* --- شعله‌ور کردن scenery --- */
+function igniteSceneryInRadius(radius, dt_hint = 0) {
+  if (!sceneryGroup) return;
+  const r2 = radius * radius;
+  sceneryData.forEach(item => {
+    if (item.x * item.x + item.z * item.z < r2) {
+      const isBurning = burningObjects.some(b => b.item === item);
+      if (!isBurning) {
+        /* احتمال اشتعال بر اساس فاصله — نزدیک‌تر مطمئن‌تر */
+        const dist = Math.sqrt(item.x * item.x + item.z * item.z);
+        const prob = 1 - Math.pow(dist / radius, 1.6);
+        if (Math.random() < prob * 0.95 + 0.05) {
+          burningObjects.push({
+            item,
+            intensity: 1,
+            life: 20 + Math.random() * 20,
+            smokeTimer: Math.random() * 0.3,
+            flamesSpawned: 0,
+          });
+          /* اگر ساختمان است، متریال را به نسخه‌ی سوخته تغییر بده */
+          if (item.type === 'building' && item.burnedMat) {
+            item.mesh.material = item.burnedMat;
+          }
+        }
+      }
+    }
+  });
+}
+
+/* --- به‌روزرسانی اجسام در حال سوختن --- */
+function updateBurning(dt, time) {
+  if (!sceneryGroup) return;
+  const scaleFactor = Q.maxFlames / 2500;
+
+  for (let i = burningObjects.length - 1; i >= 0; i--) {
+    const obj = burningObjects[i];
+    obj.life -= dt;
+    obj.intensity = Math.min(1, obj.intensity + dt * 0.5);
+
+    if (obj.life <= 0) {
+      burningObjects.splice(i, 1);
+      continue;
+    }
+
+    /* شدت آتش بر اساس زمان */
+    const age = 20 + Math.random() * 20 - obj.life;
+    let flamePower = 1;
+    if (age < 2) flamePower = age / 2; /* روشن شدن تدریجی */
+    else if (obj.life < 5) flamePower = obj.life / 5; /* خاموش شدن تدریجی */
+
+    const item = obj.item;
+    const isTree = item.type === 'tree';
+
+    /* تعداد شعله در هر فریم بر اساس چگالی */
+    const flameCount = Math.round((isTree ? 3 : 2) * particleMult * scaleFactor * flamePower);
+    for (let f = 0; f < flameCount; f++) {
+      /* پراکندگی حول مرکز جسم */
+      const spreadX = isTree ? 14 : 18;
+      const spreadZ = isTree ? 14 : 18;
+      const ox = (Math.random() - 0.5) * spreadX;
+      const oz = (Math.random() - 0.5) * spreadZ;
+      const px = item.x + ox;
+      const pz = item.z + oz;
+
+      /* ارتفاع شعله */
+      let py, color, life, size;
+      if (isTree) {
+        /* شعله از میان برگ‌ها */
+        py = item.y + 6 + Math.random() * item.height * 0.9;
+        /* رنگ شعله: نارنجی مایل به زرد برای درخت */
+        color = new THREE.Color().setHSL(
+          0.05 + Math.random() * 0.08,
+          0.95,
+          0.55 + Math.random() * 0.25
+        );
+        life = 0.8 + Math.random() * 1.0;
+        size = (1.2 + Math.random() * 2.4) * (0.7 + 0.6 * flamePower);
+      } else {
+        /* ساختمان — شعله از بالا و پنجره‌ها */
+        const fromTop = Math.random() < 0.5;
+        py = fromTop
+          ? item.y + item.height * (0.8 + Math.random() * 0.3)
+          : item.y + 4 + Math.random() * item.height * 0.6;
+        color = new THREE.Color().setHSL(
+          0.02 + Math.random() * 0.09,
+          1.0,
+          0.5 + Math.random() * 0.3
+        );
+        life = 0.7 + Math.random() * 1.1;
+        size = (1.5 + Math.random() * 2.8) * (0.7 + 0.6 * flamePower);
+      }
+
+      flamePS.spawn(
+        px, py, pz,
+        (Math.random() - 0.5) * 10,
+        8 + Math.random() * 18,
+        (Math.random() - 0.5) * 10,
+        size, life, color,
+        0.55, -12, /* جاذبه منفی = شعله بالا می‌رود */
+        true      /* فلیکر */
+      );
+    }
+
+    /* دود */
+    obj.smokeTimer -= dt;
+    if (obj.smokeTimer <= 0) {
+      obj.smokeTimer = 0.08 + Math.random() * 0.12;
+      const smokeCount = Math.round(2 * particleMult * scaleFactor * flamePower);
+      for (let s = 0; s < smokeCount; s++) {
+        const py = item.y + item.height * (0.7 + Math.random() * 0.6);
+        const px = item.x + (Math.random() - 0.5) * 12;
+        const pz = item.z + (Math.random() - 0.5) * 12;
+        const gray = 0.15 + Math.random() * 0.15;
+        const color = new THREE.Color(gray, gray * 0.95, gray * 0.9);
+        smokePS.spawn(
+          px, py, pz,
+          (Math.random() - 0.5) * 6,
+          10 + Math.random() * 15,
+          (Math.random() - 0.5) * 6,
+          (2.5 + Math.random() * 5),
+          3 + Math.random() * 4,
+          color, 0.5, -6,
+          false
+        );
+      }
+    }
+  }
+}
+
+/* --- مخفی‌کردن scenery داخل دهانه --- */
+function hideSceneryInRadius(radius) {
+  if (!sceneryGroup) return;
+  const r2 = radius * radius;
+  const dummy = new THREE.Object3D();
+  dummy.matrix.makeScale(0.0001, 0.0001, 0.0001);
+  sceneryData.forEach(item => {
+    if (item.x * item.x + item.z * item.z < r2) {
+      item.mesh.setMatrixAt(item.index, dummy.matrix);
+      item.mesh.instanceMatrix.needsUpdate = true;
+    }
+  });
+}
+
+function restoreScenery() {
+  burningObjects.length = 0;
+  sceneryData.forEach(item => {
+    item.mesh.setMatrixAt(item.index, item.originalMatrix);
+    item.mesh.instanceMatrix.needsUpdate = true;
+    if (item.type === 'building' && item.originalMat) {
+      item.mesh.material = item.originalMat;
+    }
+  });
+}
+
+function rebuildScenery(soilKey) {
+  clearScenery();
+  const soil = SOILS[soilKey];
+  if (!soil || !soil.scenery) return;
+  if (soil.scenery === 'forest') buildForest();
+  else if (soil.scenery === 'city') buildCity();
+}
+
+/* ============================================================
+   شهاب‌سنگ
+   ============================================================ */
+function makeAsteroidGeometry(shape) {
+  let g;
+  let flatShading = false;
+  switch (shape) {
+    case 'sphere': g = new THREE.SphereGeometry(1, 96, 64); break;
+    case 'ellipsoid':
+      g = new THREE.SphereGeometry(1, 96, 64);
+      g.scale(1.75, 0.68, 0.95); break;
+    case 'cube':
+      g = new THREE.BoxGeometry(1.7, 1.7, 1.7, 18, 18, 18);
+      flatShading = true; break;
+    case 'irregular':
+      g = new THREE.IcosahedronGeometry(1.15, 6);
+      flatShading = true; break;
+    case 'cone':
+      g = new THREE.ConeGeometry(1.2, 2.3, 44, 10);
+      flatShading = true; break;
+    case 'diamond':
+      g = new THREE.OctahedronGeometry(1.55, 3);
+      flatShading = true; break;
+    default: g = new THREE.IcosahedronGeometry(1.1, 5);
+  }
+  const pos = g.attributes.position;
+  const v = new THREE.Vector3();
+  const cfg = {
+    sphere:    { amp: 0.000, freq: 1.0, oct: 1 },
+    ellipsoid: { amp: 0.025, freq: 2.0, oct: 3 },
+    cube:      { amp: 0.09,  freq: 1.3, oct: 3 },
+    irregular: { amp: 0.60,  freq: 3.0, oct: 5 },
+    cone:      { amp: 0.08,  freq: 1.7, oct: 3 },
+    diamond:   { amp: 0.10,  freq: 1.9, oct: 3 },
+  }[shape];
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    if (cfg.amp > 0) {
+      let n = fbm(v.x * cfg.freq + 11, v.y * cfg.freq + 3, v.z * cfg.freq + 7, cfg.oct) - 0.5;
+      if (shape === 'irregular') {
+        const n2 = fbm(v.x * cfg.freq * 3 + 5, v.y * cfg.freq * 3 + 7, v.z * cfg.freq * 3 + 2, 3) - 0.5;
+        n = n * 0.7 + n2 * 0.55;
+      }
+      v.multiplyScalar(1 + n * cfg.amp * 2);
+      pos.setXYZ(i, v.x, v.y, v.z);
+    }
+  }
+  g.computeVertexNormals();
+  g.computeBoundingSphere();
+  const r = g.boundingSphere.radius || 1;
+  g.scale(1 / r, 1 / r, 1 / r);
+  g.computeBoundingSphere();
+  g.userData.flatShading = flatShading;
+  return g;
+}
+
+/* ============================================================
+   وضعیت
+   ============================================================ */
+let asteroid = null;
+let asteroidMat = null;
+let sim = null;
+let shakeAmp = 0;
+const cameraSaved = new THREE.Vector3();
+
+function clearAsteroid() {
+  if (asteroid) { scene.remove(asteroid); asteroid.geometry.dispose(); asteroid = null; }
+  if (asteroidMat) { asteroidMat.dispose(); asteroidMat = null; }
+}
+
+function resetCrater() {
+  const posAttr = groundGeo.attributes.position;
+  for (let k = 0; k < VCOUNT; k++) {
+    posAttr.setY(k, gBaseY[k]);
+    gCol[k*3] = gBaseCol[k*3]; gCol[k*3+1] = gBaseCol[k*3+1]; gCol[k*3+2] = gBaseCol[k*3+2];
+  }
+  posAttr.needsUpdate = true;
+  groundGeo.attributes.color.needsUpdate = true;
+  groundGeo.computeVertexNormals();
+  firePS.clear(); dustPS.clear(); trailPS.clear(); waterPS.clear();
+  smokePS.clear(); flamePS.clear();
+  clearRipples();
+  flashSprite.visible = false; flashSprite.material.opacity = 0;
+  shockRing.visible = false; shockMat.opacity = 0;
+  shockRing2.visible = false; shockMat2.opacity = 0;
+  impactLight.intensity = 0;
+  shakeAmp = 0;
+  restoreScenery();
+}
+
+function craterProfile(r, Rc, depth) {
+  const rimH = depth * 0.24;
+  const outerLimit = Rc * 3.0;
+  if (r > outerLimit) return 0;
+  if (r <= Rc) {
+    const t = r / Rc;
+    return -depth * (1 - t * t) * (1 - 0.08 * t);
+  }
+  const rimW = Rc * 0.34;
+  if (r <= Rc + rimW) {
+    const t = (r - Rc) / rimW;
+    return rimH * Math.sin(Math.PI * t);
+  }
+  const t = (r - Rc - rimW) / (outerLimit - Rc - rimW);
+  return rimH * 0.32 * Math.pow(1 - t, 2.5);
+}
+
+/* ============================================================
+   UI
+   ============================================================ */
+const ui = {
+  mass: document.getElementById('mass'),
+  mat: document.getElementById('mat'),
+  shape: document.getElementById('shape'),
+  height: document.getElementById('height'),
+  vel: document.getElementById('vel'),
+  ang: document.getElementById('ang'),
+  soil: document.getElementById('soil'),
+  quality: document.getElementById('quality'),
+  bloomSlider: document.getElementById('bloomSlider'),
+  particleSlider: document.getElementById('particleSlider'),
+};
+
+ui.quality.value = currentQuality;
+ui.bloomSlider.value = bloomMult;
+ui.particleSlider.value = particleMult;
+document.getElementById('v-bloom').textContent = fa(bloomMult, 2) + '×';
+document.getElementById('v-particles').textContent = fa(particleMult, 2) + '×';
+
+ui.quality.addEventListener('change', () => {
+  localStorage.setItem('shahabestan-quality', ui.quality.value);
+  location.reload();
+});
+ui.bloomSlider.addEventListener('input', () => {
+  bloomMult = parseFloat(ui.bloomSlider.value);
+  document.getElementById('v-bloom').textContent = fa(bloomMult, 2) + '×';
+  localStorage.setItem('shahabestan-bloom', bloomMult);
+  if (typeof bloom !== 'undefined') bloom.strength = Q.bloomStrength * bloomMult;
+});
+ui.particleSlider.addEventListener('input', () => {
+  particleMult = parseFloat(ui.particleSlider.value);
+  document.getElementById('v-particles').textContent = fa(particleMult, 2) + '×';
+  localStorage.setItem('shahabestan-particles', particleMult);
+});
+
+function readParams() {
+  return {
+    mass: Math.pow(10, parseFloat(ui.mass.value)),
+    mat: ui.mat.value,
+    shape: ui.shape.value,
+    height: Math.pow(10, parseFloat(ui.height.value)),
+    v0: parseFloat(ui.vel.value),
+    angle: parseFloat(ui.ang.value),
+    soil: ui.soil.value,
+  };
+}
+
+function updateLabels() {
+  const p = readParams();
+  document.getElementById('v-mass').textContent = fmtE(p.mass, 'kg');
+  document.getElementById('v-height').textContent = fmtE(p.height, 'm');
+  document.getElementById('v-vel').textContent = fa(p.v0 / 1000, 1) + ' km/s';
+  document.getElementById('v-ang').textContent = fa(p.angle, 0) + '°';
+}
+
+['input', 'change'].forEach(ev => {
+  Object.values(ui).forEach(el => {
+    if (el === ui.quality || el === ui.bloomSlider || el === ui.particleSlider) return;
+    el.addEventListener(ev, () => {
+      updateLabels();
+      if (ui.soil.value !== currentSoil) {
+        currentSoil = ui.soil.value;
+        paintGround(currentSoil);
+        rebuildScenery(currentSoil);
+      }
+    });
+  });
+});
+updateLabels();
+if (SOILS[currentSoil].scenery) rebuildScenery(currentSoil);
+
+function renderStats(ph) {
+  document.getElementById('o-height').innerHTML = fmtE(ph.height, 'm');
+  document.getElementById('o-vel').innerHTML   = fa(ph.v / 1000, 2) + ' km/s';
+  document.getElementById('o-angle').innerHTML = fa(ph.thetaDeg, 0) + '°';
+  document.getElementById('o-diam').innerHTML  = fmtE(ph.width, 'm');
+  document.getElementById('o-len').innerHTML   = fmtE(ph.craterLength, 'm');
+  document.getElementById('o-depth').innerHTML = fmtE(ph.depth, 'm');
+  document.getElementById('o-rock').innerHTML  = fmtE(ph.L, 'm');
+  document.getElementById('o-energy').innerHTML = fmtE(ph.E, 'J');
+  document.getElementById('o-blast').innerHTML = fmtE(ph.R_burn, 'm');
+
+  document.getElementById('o-mat').textContent   = MATS[ph.mat].name;
+  document.getElementById('o-shape').textContent = SHAPES[ph.shape].name;
+  document.getElementById('o-soil').textContent  = SOILS[ph.soil].name;
+
+  const y = ph.E / 4.184e15;
+  let badge = '';
+  if (ph.soil === 'water') {
+    badge = `<div class="badge water">برخورد در آب — پاشش و موج انفجاری بدون دهانه پایدار</div>`;
+  } else if (ph.soil === 'forest') {
+    badge = `<div class="badge forest">برخورد در جنگل — درختان نزدیک آتش می‌گیرند</div>`;
+  } else if (ph.soil === 'city') {
+    badge = `<div class="badge fire">برخورد در شهر — ساختمان‌ها در شعاع ${fmtE(ph.R_burn, 'm')} می‌سوزند</div>`;
+  } else if (y > 1e6) badge = `<div class="badge danger">رویداد در سطح انقراض جهانی</div>`;
+  else if (y > 1e4) badge = `<div class="badge danger">فاجعه در مقیاس قاره‌ای</div>`;
+  else if (y > 100) badge = `<div class="badge warn">تخریب گسترده منطقه‌ای</div>`;
+  else badge = `<div class="badge ok">رویداد محلی</div>`;
+  document.getElementById('statusBox').innerHTML = badge;
+}
+
+/* ============================================================
+   شروع برخورد
+   ============================================================ */
+function startImpact() {
+  const p = readParams();
+  const ph = computePhysics(p);
+  const isWater = p.soil === 'water';
+
+  resetCrater();
+  clearAsteroid();
+
+  const RcU = 20 + 80 * Math.log10(Math.max(1, ph.Df));
+  const wupm = RcU / (ph.Df / 2);
+  const depthU = isWater ? 0 : Math.min(ph.depth * wupm, RcU * 0.9);
+  const aRad = Math.max(2.6, ph.Ra * wupm);
+  const visualH = 150 + 65 * Math.log10(Math.max(1, p.height));
+  const fallDur = Math.min(4.0, Math.max(1.6, 3.6 - 0.35 * Math.log10(Math.max(10, ph.v))));
+
+  const angleRad = ph.thetaRad;
+  const tanA = Math.tan(angleRad);
+  const rawOffset = visualH / Math.max(0.15, tanA);
+  const horizOffset = Math.min(rawOffset, visualH * 3.0);
+
+  const geo = makeAsteroidGeometry(p.shape);
+  const M = MATS[p.mat];
+  asteroidMat = new THREE.MeshStandardMaterial({
+    color: M.color, metalness: M.metalness, roughness: M.roughness,
+    emissive: new THREE.Color(M.emis), emissiveIntensity: 0,
+    transparent: p.mat === 'ice', opacity: p.mat === 'ice' ? 0.92 : 1.0,
+    flatShading: geo.userData.flatShading || false,
+  });
+  asteroid = new THREE.Mesh(geo, asteroidMat);
+  asteroid.scale.setScalar(aRad);
+  asteroid.castShadow = Q.shadows;
+  asteroid.position.set(-horizOffset, visualH, 0);
+  asteroid.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
+  scene.add(asteroid);
+
+  const entryLight = new THREE.PointLight(0xff7a30, 0, 900, 2);
+  asteroid.add(entryLight);
+
+  if (!isWater) {
+    const meltCol = new THREE.Color(0x2a2018);
+    const ejectaCol = new THREE.Color(SOILS[p.soil].color).lerp(new THREE.Color(0xd8c9a8), 0.6);
+    const hotCol = new THREE.Color(0x8a3a10);
+    const elong = ph.elongation;
+    for (let k = 0; k < VCOUNT; k++) {
+      const x = gX[k], z = gZ[k];
+      const xN = x / elong;
+      const rEff = Math.sqrt(xN * xN + z * z);
+      let c = new THREE.Color(gBaseCol[k*3], gBaseCol[k*3+1], gBaseCol[k*3+2]);
+      if (rEff < RcU) {
+        const t = 1 - rEff / RcU;
+        c.lerp(meltCol, Math.min(1, t * 1.1));
+        c.lerp(hotCol, Math.max(0, t - 0.35) * 0.55);
+      } else if (rEff < RcU * 1.35) {
+        const t = 1 - (rEff - RcU) / (RcU * 0.35);
+        c.lerp(ejectaCol, t * 0.8);
+      } else if (rEff < RcU * 3.0) {
+        const t = 1 - (rEff - RcU * 1.35) / (RcU * 1.65);
+        c.lerp(ejectaCol, t * 0.45);
+      }
+      const n = (fbm(gPos[k*3] * 0.05, 4.2, gPos[k*3+2] * 0.05, 3) - 0.5) * 0.28;
+      gCraterCol[k*3]   = THREE.MathUtils.clamp(c.r + n, 0, 1);
+      gCraterCol[k*3+1] = THREE.MathUtils.clamp(c.g + n, 0, 1);
+      gCraterCol[k*3+2] = THREE.MathUtils.clamp(c.b + n, 0, 1);
+    }
+  }
+
+  const span = Math.max(visualH, horizOffset);
+  const camDist = Math.max(500, RcU * 1.9, span * 1.3);
+  camera.position.set(camDist * 0.5 + horizOffset * 0.3, camDist * 0.55, camDist * 0.85);
+  controls.target.set(-horizOffset * 0.15, Math.min(60, RcU * 0.15 + visualH * 0.15), 0);
+
+  /* محاسبه شعاع آتش بر حسب واحد صحنه
+     R_burn بر حسب متر → با wupm به واحد صحنه تبدیل میشه
+     RcU هم برای دهانه. شعاع آتش معمولاً خیلی بزرگتره پس محدودش میکنیم */
+  const burnRadiusScene = Math.min(ph.R_burn * wupm, 3000);
+
+  sim = {
+    phase: 'fall', t: 0,
+    visualH, aRad, RcU, depthU, fallDur, horizOffset,
+    impactTime: 0, craterProg: 0,
+    ph, entryLight, isWater,
+    angleRad,
+    elong: ph.elongation,
+    burnRadiusScene,
+    ignitionDone: false,
+  };
+
+  renderStats(ph);
+  document.getElementById('hint').classList.add('hide');
+}
+
+/* ============================================================
+   به‌روزرسانی
+   ============================================================ */
+function updateSim(dt, time) {
+  if (!sim) return;
+  const S = sim;
+  const ph = S.ph;
+
+  if (S.phase === 'fall') {
+    S.t += dt;
+    const t = Math.min(1, S.t / S.fallDur);
+    const horizProgress = t;
+    const vertProgress = t * t;
+
+    asteroid.position.x = -S.horizOffset * (1 - horizProgress);
+    asteroid.position.y = S.visualH * (1 - vertProgress);
+
+    asteroid.rotation.x += dt * 1.1;
+    asteroid.rotation.y += dt * 1.6;
+    asteroid.rotation.z += dt * 0.7;
+
+    const heat = Math.min(1, t * 1.7);
+    asteroidMat.emissiveIntensity = heat * 1.8;
+    S.entryLight.intensity = heat * 900;
+
+    if (t > 0.06 && Math.random() < 0.95) {
+      const n = Math.round(3 * particleMult);
+      for (let i = 0; i < n; i++) {
+        const spread = S.aRad * 1.4;
+        trailPS.spawn(
+          asteroid.position.x + (Math.random() - 0.5) * spread,
+          asteroid.position.y + (Math.random() - 0.5) * spread + S.aRad * 0.6,
+          asteroid.position.z + (Math.random() - 0.5) * spread,
+          (Math.random() - 0.5) * 22,
+          28 + Math.random() * 42,
+          (Math.random() - 0.5) * 22,
+          S.aRad * (0.35 + Math.random() * 0.55),
+          0.7 + Math.random() * 0.9,
+          new THREE.Color().setHSL(0.06 + Math.random() * 0.06, 1, 0.55 + Math.random() * 0.3),
+          0.03, -8
+        );
+      }
+    }
+
+    if (t >= 1) triggerImpact();
+
+  } else if (S.phase === 'impact') {
+    S.impactTime += dt;
+    const it = S.impactTime;
+
+    if (!S.isWater && S.craterProg < 1) {
+      S.craterProg = Math.min(1, S.craterProg + dt * 2.6);
+      const prog = 1 - Math.pow(1 - S.craterProg, 3);
+      const posAttr = groundGeo.attributes.position;
+      const colAttr = groundGeo.attributes.color;
+      const elong = S.elong;
+      for (let k = 0; k < VCOUNT; k++) {
+        const xN = gX[k] / elong;
+        const rEff = Math.sqrt(xN * xN + gZ[k] * gZ[k]);
+        const off = craterProfile(rEff, S.RcU, S.depthU);
+        posAttr.setY(k, gBaseY[k] + off * prog);
+        for (let c = 0; c < 3; c++)
+          gCol[k*3+c] = gBaseCol[k*3+c] + (gCraterCol[k*3+c] - gBaseCol[k*3+c]) * prog;
+      }
+      posAttr.needsUpdate = true;
+      colAttr.needsUpdate = true;
+      groundGeo.computeVertexNormals();
+    }
+
+    /* اشتعال scenery — یک بار پس از ضربه */
+    if (!S.ignitionDone && it > 0.15) {
+      S.ignitionDone = true;
+      if (ph.soil === 'forest' || ph.soil === 'city') {
+        igniteSceneryInRadius(S.burnRadiusScene);
+      }
+    }
+
+    const flashColor = S.isWater ? 0xd8f0ff : 0xfff0cc;
+    flashSprite.material.color.set(flashColor);
+    const fT = Math.min(1, it / (S.isWater ? 0.85 : 0.55));
+    flashSprite.visible = fT < 1;
+    if (fT < 1) {
+      const s = S.RcU * (0.6 + fT * (S.isWater ? 2.4 : 3.8));
+      flashSprite.scale.set(s, s, 1);
+      flashSprite.material.opacity = Math.pow(1 - fT, S.isWater ? 2.4 : 1.8) * (S.isWater ? 0.7 : 1);
+      flashSprite.position.set(0, S.RcU * 0.35, 0);
+    }
+    impactLight.color.set(S.isWater ? 0x9ed4ff : 0xffb060);
+    impactLight.intensity = Math.max(0, (S.isWater ? 120000 : 300000) *
+      Math.pow(1 - Math.min(1, it / 1.2), 3));
+    impactLight.position.set(0, S.RcU * 0.3, 0);
+
+    shakeAmp = Math.max(shakeAmp, Math.min(30, S.RcU * 0.30) *
+      Math.pow(1 - Math.min(1, it / 1.6), 2.2));
+
+    if (it > 0.05) {
+      const maxR = Math.min(S.RcU * 6.5, 1800);
+      shockRing.visible = true;
+      const st = Math.min(1, (it - 0.05) / 2.8);
+      const sr = 4 + st * maxR;
+      shockRing.scale.set(sr * (S.isWater ? 1 : S.elong), 1, sr);
+      shockMat.opacity = Math.pow(1 - st, 2.2) * (S.isWater ? 0.55 : 0.95);
+
+      shockRing2.visible = true;
+      const st2 = Math.min(1, (it - 0.25) / 3.6);
+      const sr2 = 2 + st2 * maxR * 0.7;
+      shockRing2.scale.set(sr2 * (S.isWater ? 1 : S.elong), 1, sr2);
+      shockMat2.opacity = Math.pow(1 - st2, 2.6) * 0.55;
+    }
+
+    const dirBias = Math.max(0, 1 - Math.sin(S.angleRad)) * 0.75;
+
+    if (it < 0.9 && !S.isWater) {
+      const n = Math.round((Math.floor(26 * (1 - it / 0.9)) + 6) * particleMult);
+      for (let i = 0; i < n; i++) {
+        let a;
+        if (Math.random() < dirBias * 1.6) a = (Math.random() - 0.35) * Math.PI * 0.8;
+        else a = Math.random() * Math.PI * 2;
+        const el = 0.18 + Math.random() * 1.15;
+        const sp = (55 + Math.random() * 200) * (S.RcU / 78);
+        const col = new THREE.Color().setHSL(0.02 + Math.random() * 0.10, 1, 0.5 + Math.random() * 0.35);
+        firePS.spawn(
+          (Math.random() - 0.5) * S.RcU * 0.4, Math.random() * 4, (Math.random() - 0.5) * S.RcU * 0.4,
+          Math.cos(a) * Math.cos(el) * sp, Math.sin(el) * sp * 1.15, Math.sin(a) * Math.cos(el) * sp,
+          (0.7 + Math.random() * 2.2) * (S.RcU / 78), 1.6 + Math.random() * 2.6, col, 0.35, 55
+        );
+      }
+    }
+
+    if (it < 1.8 && !S.isWater) {
+      const n = Math.round(24 * particleMult);
+      for (let i = 0; i < n; i++) {
+        let a;
+        if (Math.random() < dirBias * 1.4) a = (Math.random() - 0.35) * Math.PI * 0.8;
+        else a = Math.random() * Math.PI * 2;
+        const el = 0.12 + Math.random() * 1.35;
+        const sp = (28 + Math.random() * 105) * (S.RcU / 78);
+        const g = 0.28 + Math.random() * 0.28;
+        const col = new THREE.Color(SOILS[ph.soil].color).lerp(new THREE.Color(0xffffff), g * 0.45);
+        dustPS.spawn(
+          (Math.random() - 0.5) * S.RcU * 0.5, 2 + Math.random() * 8, (Math.random() - 0.5) * S.RcU * 0.5,
+          Math.cos(a) * Math.cos(el) * sp, Math.sin(el) * sp * 1.4 + 8, Math.sin(a) * Math.cos(el) * sp,
+          (2.5 + Math.random() * 7) * (S.RcU / 78), 4.5 + Math.random() * 7, col, 0.75, 12
+        );
+      }
+    }
+
+    if (S.isWater && it < 2.4) {
+      if (it < 1.2) {
+        const n = Math.round(20 * particleMult);
+        for (let i = 0; i < n; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const radFrac = Math.random();
+          const sp = (80 + Math.random() * 180) * (S.RcU / 78);
+          const up = (140 + Math.random() * 180) * (S.RcU / 78) * (1 - it * 0.4);
+          const col = new THREE.Color().setHSL(0.55 + Math.random() * 0.06, 0.55, 0.75 + Math.random() * 0.2);
+          waterPS.spawn(
+            Math.cos(ang) * radFrac * S.RcU * 0.4, 3 + Math.random() * 6, Math.sin(ang) * radFrac * S.RcU * 0.4,
+            Math.cos(ang) * sp * radFrac, up, Math.sin(ang) * sp * radFrac,
+            (1.6 + Math.random() * 3.5) * (S.RcU / 78), 1.4 + Math.random() * 2.0, col, 0.25, 55
+          );
+        }
+      }
+      if (it < 2.0 && Math.random() < 0.8) {
+        const n = Math.round(8 * particleMult);
+        for (let i = 0; i < n; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const radFrac = 0.4 + Math.random() * 0.8;
+          const col = new THREE.Color().setHSL(0.55, 0.35, 0.88);
+          waterPS.spawn(
+            Math.cos(ang) * radFrac * S.RcU * 0.5, 2 + Math.random() * 3, Math.sin(ang) * radFrac * S.RcU * 0.5,
+            Math.cos(ang) * 20 * (S.RcU / 78), 8 + Math.random() * 20, Math.sin(ang) * 20 * (S.RcU / 78),
+            (3 + Math.random() * 5) * (S.RcU / 78), 2.5 + Math.random() * 2, col, 0.4, 25
+          );
+        }
+      }
+      ripples.forEach((rp) => {
+        const t0 = rp.delay;
+        const lt = it - t0;
+        if (lt > 0 && lt < 3.2) {
+          const prog = lt / 3.2;
+          const rr = 2 + prog * S.RcU * 8;
+          rp.mesh.scale.set(rr, 1, rr);
+          rp.mat.opacity = Math.pow(1 - prog, 1.8) * 0.65;
+          rp.mesh.visible = true;
+        } else if (lt >= 3.2) {
+          rp.mesh.visible = false;
+        }
+      });
+    }
+
+    if (it > 4.5) S.phase = 'settle';
+  }
+
+  if (shakeAmp > 0.01) shakeAmp *= Math.pow(0.06, dt);
+  else shakeAmp = 0;
+}
+
+function triggerImpact() {
+  const S = sim;
+  S.phase = 'impact';
+  S.impactTime = 0;
+
+  if (asteroid) {
+    asteroid.visible = false;
+    if (S.entryLight) S.entryLight.intensity = 0;
+  }
+
+  if (!S.isWater && (S.ph.soil === 'forest' || S.ph.soil === 'city')) {
+    hideSceneryInRadius(S.RcU * 1.7);
+  }
+
+  const ph = S.ph;
+  const scale = S.RcU / 78;
+  const dirBias = Math.max(0, 1 - Math.sin(S.angleRad)) * 0.75;
+
+  if (!S.isWater) {
+    const isForest = ph.soil === 'forest';
+    const isCity = ph.soil === 'city';
+
+    const n1 = Math.round(500 * particleMult);
+    for (let i = 0; i < n1; i++) {
+      let a;
+      if (Math.random() < dirBias * 1.5) a = (Math.random() - 0.35) * Math.PI * 0.8;
+      else a = Math.random() * Math.PI * 2;
+      const el = 0.1 + Math.random() * 1.4;
+      const sp = (40 + Math.random() * 260) * scale;
+      const col = new THREE.Color().setHSL(0.01 + Math.random() * 0.09, 1, 0.55 + Math.random() * 0.4);
+      firePS.spawn(
+        (Math.random() - 0.5) * S.RcU * 0.4, Math.random() * 12, (Math.random() - 0.5) * S.RcU * 0.4,
+        Math.cos(a) * Math.cos(el) * sp, Math.sin(el) * sp * 1.2, Math.sin(a) * Math.cos(el) * sp,
+        (0.8 + Math.random() * 2.6) * scale, 2 + Math.random() * 3.5, col, 0.3, 60
+      );
+    }
+
+    const n2 = Math.round(700 * particleMult);
+    for (let i = 0; i < n2; i++) {
+      let a;
+      if (Math.random() < dirBias * 1.4) a = (Math.random() - 0.35) * Math.PI * 0.8;
+      else a = Math.random() * Math.PI * 2;
+      const el = 0.1 + Math.random() * 1.5;
+      const sp = (20 + Math.random() * 150) * scale;
+
+      let baseCol;
+      if (isForest && Math.random() < 0.4) {
+        baseCol = new THREE.Color().setHSL(0.24 + Math.random() * 0.08, 0.55, 0.28 + Math.random() * 0.2);
+      } else if (isCity && Math.random() < 0.4) {
+        baseCol = new THREE.Color().setHSL(0.08, 0.06, 0.5 + Math.random() * 0.25);
+      } else {
+        const g = 0.25 + Math.random() * 0.3;
+        baseCol = new THREE.Color(SOILS[ph.soil].color).lerp(new THREE.Color(0xffffff), g * 0.5);
+      }
+
+      dustPS.spawn(
+        (Math.random() - 0.5) * S.RcU * 0.45, Math.random() * 15, (Math.random() - 0.5) * S.RcU * 0.45,
+        Math.cos(a) * Math.cos(el) * sp, Math.sin(el) * sp * 1.5 + 12, Math.sin(a) * Math.cos(el) * sp,
+        (2.5 + Math.random() * 8) * scale, 5 + Math.random() * 9, baseCol, 0.72, 11
+      );
+    }
+  } else {
+    const n = Math.round(900 * particleMult);
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const el = 0.25 + Math.random() * 1.35;
+      const sp = (70 + Math.random() * 320) * scale;
+      const radJitter = Math.random() * 0.4;
+      const col = new THREE.Color().setHSL(0.55 + Math.random() * 0.06,
+        0.5 + Math.random() * 0.2, 0.72 + Math.random() * 0.22);
+      waterPS.spawn(
+        Math.cos(a) * radJitter * S.RcU * 0.5, 3 + Math.random() * 8, Math.sin(a) * radJitter * S.RcU * 0.5,
+        Math.cos(a) * Math.cos(el) * sp, Math.sin(el) * sp * 1.7, Math.sin(a) * Math.cos(el) * sp,
+        (1.8 + Math.random() * 4.5) * scale, 2 + Math.random() * 3.5, col, 0.2, 60
+      );
+    }
+    const n2 = Math.round(500 * particleMult);
+    for (let i = 0; i < n2; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const el = 0.15 + Math.random() * 1.3;
+      const sp = (40 + Math.random() * 180) * scale;
+      const col = new THREE.Color(0xdfefff);
+      waterPS.spawn(
+        (Math.random() - 0.5) * S.RcU * 0.6, Math.random() * 5, (Math.random() - 0.5) * S.RcU * 0.6,
+        Math.cos(a) * Math.cos(el) * sp, Math.sin(el) * sp * 1.4, Math.sin(a) * Math.cos(el) * sp,
+        (2.5 + Math.random() * 5) * scale, 3 + Math.random() * 3, col, 0.35, 40
+      );
+    }
+  }
+
+  shakeAmp = Math.min(32, S.RcU * 0.35);
+}
+
+/* ============================================================
+   Post-processing
+   ============================================================ */
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(
+  new THREE.Vector2(innerWidth, innerHeight),
+  Q.bloomStrength * bloomMult,
+  Q.bloomRadius,
+  Q.bloomThreshold
+);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+/* ============================================================
+   حلقه
+   ============================================================ */
+const clock = new THREE.Clock();
+
+function updateUScale() {
+  const h = renderer.domElement.height;
+  const fovRad = THREE.MathUtils.degToRad(camera.fov);
+  const uScale = h / (2 * Math.tan(fovRad / 2));
+  firePS.mat.uniforms.uScale.value = uScale;
+  dustPS.mat.uniforms.uScale.value = uScale;
+  trailPS.mat.uniforms.uScale.value = uScale;
+  waterPS.mat.uniforms.uScale.value = uScale;
+  smokePS.mat.uniforms.uScale.value = uScale;
+  flamePS.mat.uniforms.uScale.value = uScale;
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const time = clock.elapsedTime;
+
+  updateSim(dt, time);
+  updateBurning(dt, time);
+
+  firePS.update(dt, time);
+  dustPS.update(dt, time);
+  trailPS.update(dt, time);
+  waterPS.update(dt, time);
+  smokePS.update(dt, time);
+  flamePS.update(dt, time);
+  controls.update();
+
+  cameraSaved.copy(camera.position);
+  if (shakeAmp > 0.02) {
+    camera.position.x += (Math.random() - 0.5) * shakeAmp;
+    camera.position.y += (Math.random() - 0.5) * shakeAmp;
+    camera.position.z += (Math.random() - 0.5) * shakeAmp;
+  }
+
+  composer.render();
+  camera.position.copy(cameraSaved);
+}
+animate();
+
+function onResize() {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  composer.setSize(innerWidth, innerHeight);
+  bloom.setSize(innerWidth, innerHeight);
+  updateUScale();
+}
+addEventListener('resize', onResize);
+onResize();
+
+document.getElementById('run').addEventListener('click', startImpact);
+document.getElementById('reset').addEventListener('click', () => {
+  clearAsteroid();
+  resetCrater();
+  sim = null;
+  camera.position.set(430, 330, 640);
+  controls.target.set(0, 30, 0);
+  document.getElementById('statusBox').innerHTML = '';
+  document.getElementById('hint').classList.remove('hide');
+});
+
+setTimeout(() => document.getElementById('splash').classList.add('hide'), 1800);
+setTimeout(() => {
+  const s = document.getElementById('splash');
+  if (s && s.parentNode) s.parentNode.removeChild(s);
+}, 3200);
+setTimeout(() => document.getElementById('hint').classList.remove('hide'), 2000);
+
+/* ============================================================
+   مودال‌ها
+   ============================================================ */
+const aboutModal = document.getElementById('aboutModal');
+const gameOverlay = document.getElementById('gameOverlay');
+
+document.getElementById('openAbout').addEventListener('click', () => aboutModal.classList.add('active'));
+document.querySelectorAll('[data-close]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.getAttribute('data-close');
+    document.getElementById(id).classList.remove('active');
+    if (id === 'gameOverlay') closeGame();
+  });
+});
+[aboutModal, gameOverlay].forEach(m => {
+  m.addEventListener('click', e => {
+    if (e.target === m) {
+      m.classList.remove('active');
+      if (m === gameOverlay) closeGame();
+    }
+  });
+});
+
+/* ============================================================
+   مینی‌گیم
+   ============================================================ */
+const gameCanvas = document.getElementById('gameCanvas');
+const gctx = gameCanvas.getContext('2d');
+const gameTitleEl = document.getElementById('gameTitle');
+const scoreEl = document.getElementById('score');
+const timerEl = document.getElementById('timer');
+const GW = gameCanvas.width, GH = gameCanvas.height;
+
+let G = null;
+let rafId = null;
+
+function openGame(mode) {
+  aboutModal.classList.remove('active');
+  gameOverlay.classList.add('active');
+  const isJets = mode === 'jets';
+  gameTitleEl.textContent = isJets ? 'بازی: زدن جت‌ها' : 'بازی: زدن تانک‌ها';
+  G = {
+    mode, running: false, score: 0, timeLeft: 30,
+    targets: [], asteroids: [], explosions: [], particles: [],
+    targetTimer: 0.5, lastT: 0,
+    stars: Array.from({ length: 70 }, () => ({
+      x: Math.random() * GW, y: Math.random() * GH * 0.65,
+      r: Math.random() * 1.2 + 0.3, a: Math.random() * 0.5 + 0.15,
+    })),
+  };
+  scoreEl.textContent = '۰'; timerEl.textContent = '۳۰';
+  drawGame();
+}
+
+function closeGame() {
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = null; G = null;
+}
+
+function startGame() {
+  if (!G) return;
+  G.running = true; G.score = 0; G.timeLeft = 30;
+  G.targets = []; G.asteroids = []; G.explosions = []; G.particles = [];
+  G.targetTimer = 0.4; G.lastT = performance.now();
+  scoreEl.textContent = '۰'; timerEl.textContent = '۳۰';
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(gameLoop);
+}
+
+function gameLoop(t) {
+  if (!G || !G.running) return;
+  const dt = Math.min(0.05, (t - G.lastT) / 1000);
+  G.lastT = t;
+  G.timeLeft -= dt;
+  if (G.timeLeft <= 0) {
+    G.timeLeft = 0; G.running = false;
+    timerEl.textContent = '۰'; updateGame(0); drawGame(); return;
+  }
+  timerEl.textContent = fa(Math.max(0, Math.ceil(G.timeLeft)), 0);
+  updateGame(dt); drawGame();
+  rafId = requestAnimationFrame(gameLoop);
+}
+
+function updateGame(dt) {
+  G.targetTimer -= dt;
+  if (G.targetTimer <= 0) {
+    if (G.mode === 'jets') {
+      G.targetTimer = 0.75 + Math.random() * 0.75;
+      const fromLeft = Math.random() < 0.5;
+      G.targets.push({
+        x: fromLeft ? -100 : GW + 100, y: 90 + Math.random() * 220,
+        w: 72, h: 20,
+        vx: (fromLeft ? 1 : -1) * (70 + Math.random() * 100),
+        dir: fromLeft ? 1 : -1,
+      });
+    } else {
+      G.targetTimer = 0.9 + Math.random() * 0.8;
+      const fromLeft = Math.random() < 0.5;
+      G.targets.push({
+        x: fromLeft ? -80 : GW + 80, y: GH - 62, w: 62, h: 28,
+        vx: (fromLeft ? 1 : -1) * (35 + Math.random() * 45),
+        dir: fromLeft ? 1 : -1,
+      });
+    }
+  }
+  for (let i = G.targets.length - 1; i >= 0; i--) {
+    const tg = G.targets[i];
+    tg.x += tg.vx * dt;
+    if (tg.x < -180 || tg.x > GW + 180) {
+      G.targets.splice(i, 1);
+      G.score = Math.max(0, G.score - 1);
+      scoreEl.textContent = fa(G.score, 0);
+    }
+  }
+  for (let i = G.asteroids.length - 1; i >= 0; i--) {
+    const a = G.asteroids[i];
+    a.vy += 780 * dt;
+    a.x += a.vx * dt; a.y += a.vy * dt;
+    a.rot += a.rotSpeed * dt;
+    if (!a.trail) a.trail = [];
+    a.trail.push({ x: a.x, y: a.y, life: 0.4 });
+    for (let k = a.trail.length - 1; k >= 0; k--) {
+      a.trail[k].life -= dt;
+      if (a.trail[k].life <= 0) a.trail.splice(k, 1);
+    }
+    let hit = false;
+    for (let j = G.targets.length - 1; j >= 0; j--) {
+      const tg = G.targets[j];
+      if (a.x + a.r > tg.x - tg.w / 2 && a.x - a.r < tg.x + tg.w / 2 &&
+          a.y + a.r > tg.y - tg.h / 2 && a.y - a.r < tg.y + tg.h / 2) {
+        explode(a.x, a.y);
+        G.targets.splice(j, 1); G.score++;
+        scoreEl.textContent = fa(G.score, 0);
+        hit = true; break;
+      }
+    }
+    if (hit || a.y > GH + 40 || a.x < -60 || a.x > GW + 60) {
+      if (!hit && a.y > GH + 20) explode(a.x, GH - 6, true);
+      G.asteroids.splice(i, 1);
+    }
+  }
+  for (let i = G.explosions.length - 1; i >= 0; i--) {
+    const e = G.explosions[i];
+    e.life -= dt; e.r += e.growth * dt;
+    if (e.life <= 0) G.explosions.splice(i, 1);
+  }
+  for (let i = G.particles.length - 1; i >= 0; i--) {
+    const p = G.particles[i];
+    p.life -= dt;
+    p.vy += (p.g || 300) * dt;
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    if (p.life <= 0) G.particles.splice(i, 1);
+  }
+}
+
+function explode(x, y, ground = false) {
+  G.explosions.push({ x, y, r: 4, maxR: ground ? 55 : 42, growth: 90,
+    life: 0.55, maxLife: 0.55, ground });
+  const n = ground ? 22 : 16;
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const sp = 70 + Math.random() * 170;
+    G.particles.push({
+      x, y, vx: Math.cos(a) * sp,
+      vy: Math.sin(a) * sp - (ground ? 40 : 30),
+      life: 0.4 + Math.random() * 0.5,
+      r: 1.5 + Math.random() * 3,
+      color: ground ? (Math.random() < 0.5 ? '#a89878' : '#8a7a5a')
+        : (Math.random() < 0.5 ? '#ffb060' : '#ff6b30'),
+      g: ground ? 500 : 300,
+    });
+  }
+}
+
+function drawGame() {
+  if (!G) return;
+  const ctx = gctx;
+  if (G.mode === 'jets') {
+    const grad = ctx.createLinearGradient(0, 0, 0, GH);
+    grad.addColorStop(0, '#0a1220'); grad.addColorStop(0.7, '#152238'); grad.addColorStop(1, '#1e2c44');
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, GW, GH);
+    G.stars.forEach(s => {
+      ctx.fillStyle = `rgba(200,220,255,${s.a})`;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+    });
+  } else {
+    const grad = ctx.createLinearGradient(0, 0, 0, GH);
+    grad.addColorStop(0, '#0a0e14'); grad.addColorStop(0.6, '#1a1e24');
+    grad.addColorStop(0.75, '#2a2e20'); grad.addColorStop(1, '#3a3528');
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, GW, GH);
+    G.stars.forEach(s => {
+      ctx.fillStyle = `rgba(180,190,210,${s.a * 0.5})`;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 0.8, 0, Math.PI * 2); ctx.fill();
+    });
+    ctx.fillStyle = '#3a3528'; ctx.fillRect(0, GH - 40, GW, 40);
+    ctx.strokeStyle = '#4a4530'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, GH - 40); ctx.lineTo(GW, GH - 40); ctx.stroke();
+    for (let x = 0; x < GW; x += 24) {
+      ctx.fillStyle = Math.random() < 0.5 ? '#343024' : '#423c2c';
+      ctx.fillRect(x + (Math.random() * 8), GH - 40 + Math.random() * 30, 3, 2);
+    }
+  }
+  G.targets.forEach(tg => {
+    if (G.mode === 'jets') drawJet(ctx, tg); else drawTank(ctx, tg);
+  });
+  G.asteroids.forEach(a => {
+    if (!a.trail) return;
+    a.trail.forEach(t => {
+      const alpha = (t.life / 0.4) * 0.5;
+      const size = a.r * (0.3 + (t.life / 0.4) * 0.5);
+      const grad = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, size);
+      grad.addColorStop(0, `rgba(255,180,80,${alpha})`);
+      grad.addColorStop(1, 'rgba(255,80,20,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(t.x, t.y, size, 0, Math.PI * 2); ctx.fill();
+    });
+  });
+  G.asteroids.forEach(a => {
+    ctx.save();
+    ctx.translate(a.x, a.y); ctx.rotate(a.rot);
+    ctx.fillStyle = '#3a3530';
+    ctx.beginPath();
+    const sides = 7;
+    for (let i = 0; i < sides; i++) {
+      const ang = (i / sides) * Math.PI * 2;
+      const rr = a.r * (0.82 + ((i * 13) % 7) / 20);
+      const px = Math.cos(ang) * rr, py = Math.sin(ang) * rr;
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#5a5248'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = 'rgba(255,140,50,0.55)';
+    ctx.beginPath(); ctx.arc(-a.r * 0.3, -a.r * 0.3, a.r * 0.35, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  });
+  G.explosions.forEach(e => {
+    const t = e.life / e.maxLife;
+    const grad = ctx.createRadialGradient(e.x, e.y, 0, e.x, e.y, e.r);
+    grad.addColorStop(0, `rgba(255,255,220,${t * 0.9})`);
+    grad.addColorStop(0.4, `rgba(255,170,80,${t * 0.7})`);
+    grad.addColorStop(1, `rgba(255,80,20,0)`);
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2); ctx.fill();
+  });
+  G.particles.forEach(p => {
+    const t = Math.max(0, p.life / 0.8);
+    ctx.globalAlpha = t; ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r * t, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+  if (!G.running && G.timeLeft <= 0) {
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, GW, GH);
+    ctx.fillStyle = '#e2e6ea'; ctx.font = '600 34px Vazirmatn, Tahoma';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('پایان بازی', GW / 2, GH / 2 - 30);
+    ctx.font = '500 22px Vazirmatn, Tahoma'; ctx.fillStyle = '#d4b07a';
+    ctx.fillText('امتیاز نهایی: ' + fa(G.score, 0), GW / 2, GH / 2 + 16);
+  }
+  if (!G.running && G.timeLeft === 30 && G.score === 0 && G.targets.length === 0) {
+    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0, GH / 2 - 40, GW, 80);
+    ctx.fillStyle = '#c8ccd0'; ctx.font = '500 20px Vazirmatn, Tahoma';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('برای شروع دکمه «شروع» را بزنید', GW / 2, GH / 2);
+  }
+}
+
+function drawJet(ctx, tg) {
+  ctx.save();
+  ctx.translate(tg.x, tg.y); ctx.scale(tg.dir, 1);
+  ctx.fillStyle = '#8a9099';
+  ctx.beginPath();
+  ctx.moveTo(-34, 0); ctx.lineTo(24, -4); ctx.lineTo(34, 0);
+  ctx.lineTo(24, 4); ctx.lineTo(-34, 0); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#6a7078';
+  ctx.beginPath(); ctx.moveTo(-4, 0); ctx.lineTo(-14, -12); ctx.lineTo(2, -3); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-4, 0); ctx.lineTo(-14, 12); ctx.lineTo(2, 3); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-34, 0); ctx.lineTo(-42, -10); ctx.lineTo(-36, 0);
+  ctx.lineTo(-42, 10); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#9ec4e8';
+  ctx.beginPath(); ctx.ellipse(8, -1, 5, 3, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = 'rgba(255,150,80,0.7)';
+  const flameX = tg.x - tg.dir * 36;
+  ctx.beginPath();
+  ctx.moveTo(flameX, tg.y);
+  ctx.lineTo(flameX - tg.dir * (8 + Math.random() * 6), tg.y - 3);
+  ctx.lineTo(flameX - tg.dir * (8 + Math.random() * 6), tg.y + 3);
+  ctx.closePath(); ctx.fill();
+}
+
+function drawTank(ctx, tg) {
+  ctx.save();
+  ctx.translate(tg.x, tg.y); ctx.scale(tg.dir, 1);
+  ctx.fillStyle = '#3a4a2a'; ctx.fillRect(-30, -14, 60, 26);
+  ctx.fillStyle = '#1e2618';
+  for (let i = -22; i <= 22; i += 11) {
+    ctx.beginPath(); ctx.arc(i, 12, 5, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.fillStyle = '#4a5a35';
+  ctx.beginPath(); ctx.ellipse(0, -14, 15, 9, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#2a3420'; ctx.fillRect(10, -20, 26, 4);
+  ctx.strokeStyle = '#2a3420'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(-30, -14, 60, 26);
+  ctx.restore();
+}
+
+gameCanvas.addEventListener('click', e => {
+  if (!G || !G.running) return;
+  const rect = gameCanvas.getBoundingClientRect();
+  const sx = GW / rect.width, sy = GH / rect.height;
+  const x = (e.clientX - rect.left) * sx;
+  const y = (e.clientY - rect.top) * sy;
+  if (y < 20) return;
+  G.asteroids.push({
+    x, y: 15, r: 11,
+    vx: (Math.random() - 0.5) * 20,
+    vy: 180, rot: 0, rotSpeed: 2 + Math.random() * 3, trail: [],
+  });
+});
+
+document.getElementById('startGameBtn').addEventListener('click', startGame);
+document.getElementById('openJets').addEventListener('click', () => openGame('jets'));
+document.getElementById('openTanks').addEventListener('click', () => openGame('tanks'));
+
+console.log('%cشهابستان — شبیه‌ساز برخورد شهاب‌سنگ',
+  'font-size:16px;color:#d4b07a;font-weight:bold');
+console.log('محمد حسین رضی و امیر عباس صفری');
+console.log('کیفیت فعلی:', currentQuality);
+</script>
+</body>
+</html>
